@@ -151,7 +151,7 @@ function poly(pts,fill,stroke){
 }
 function sRect3x4(lbl){return mkGrid(5,6,poly([[1,1],[4,1],[4,5],[1,5]],'#bfdbfe','#1d4ed8'),'#dbeafe',lbl);}
 function sLShape(lbl) {return mkGrid(5,6,poly([[1,1],[3,1],[3,3],[4,3],[4,5],[1,5]],'#bbf7d0','#15803d'),'#dcfce7',lbl);}
-function sTriRT(lbl)  {return mkGrid(5,5,poly([[1,1],[4,1],[1,4]],'#fde68a','#b45309'),'#fef9c3',lbl);}
+function sTriRT(lbl)  {return mkGrid(6,6,poly([[1,1],[5,1],[1,5]],'#fde68a','#b45309'),'#fef9c3',lbl);}
 function sStair(lbl)  {return mkGrid(5,5,poly([[1,4],[1,3],[2,3],[2,2],[3,2],[3,1],[4,1],[4,4]],'#fbcfe8','#be185d'),'#fdf2f8',lbl);}
 function sCross(lbl)  {return mkGrid(6,6,poly([[2,1],[4,1],[4,2],[5,2],[5,4],[4,4],[4,5],[2,5],[2,4],[1,4],[1,2],[2,2]],'#fed7aa','#c2410c'),'#fff7ed',lbl);}
 function sSq3x3(lbl)  {return mkGrid(5,5,poly([[1,1],[4,1],[4,4],[1,4]],'#e9d5ff','#6d28d9'),'#f5f3ff',lbl);}
@@ -269,7 +269,7 @@ const Q=[
   {sec:4,
    q:'¿Cuántas unidades cuadradas ocupa esta figura en forma de L (verde)?',
    gridA:sLShape(''),
-   opts:['6 u²','7 u²','8 u²','10 u²'],ans:2},
+   opts:['6 u²','8 u²','10 u²','12 u²'],ans:2},
   {sec:4,
    q:'¿Cuántas unidades cuadradas ocupa este triángulo (amarillo)?',
    gridA:sTriRT(''),
