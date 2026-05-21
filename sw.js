@@ -2,7 +2,7 @@
 // Estrategia: stale-while-revalidate (responde cacheado y refresca en segundo plano).
 // Subir CACHE_NAME al cambiar este archivo para invalidar el cache anterior.
 
-const CACHE_NAME = 'alana-v2';
+const CACHE_NAME = 'alana-v3';
 const ARCHIVOS_BASE = [
   './',
   'index.html',
