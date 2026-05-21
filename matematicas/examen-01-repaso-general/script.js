@@ -219,6 +219,8 @@ const estado = {
   totalCorrectas: 0,
   totalEjercicios: SECCIONES_ACTIVAS.reduce((s, sec) => s + sec.ejercicios.length, 0),
   erroresPorId: [],
+  // { fracciones: { titulo, emoji, aciertos, total }, ... } para el dashboard.
+  resumenPorSeccion: {},
 };
 
 // ---------- RENDER ----------
@@ -501,6 +503,12 @@ function comprobarSeccion() {
 
   estado.totalCorrectas += aciertos;
   estado.resultadoSeccion[sec.id] = { aciertos, total: sec.ejercicios.length };
+  estado.resumenPorSeccion[sec.id] = {
+    titulo: sec.titulo,
+    emoji: sec.emoji,
+    aciertos,
+    total: sec.ejercicios.length,
+  };
   document.getElementById('puntos').textContent = estado.totalCorrectas;
 
   document.getElementById('btn-comprobar').hidden = true;
@@ -555,13 +563,15 @@ function mostrarFinal() {
   const correctas = estado.totalCorrectas;
   const pct = Math.round((correctas / total) * 100);
 
-  // Guardar intento (solo en modo examen fijo: en repaso o aleatorio no representa
-  // el examen completo, mezclaría manzanas con peras en el historial).
-  if (!MODO_REPASO && !MODO_ALEATORIO && typeof Almacen !== 'undefined') {
+  // Guardar el intento (excepto en modo repaso, que es una sub-tirada del intento previo).
+  // Modo fijo y aleatorio se guardan ambos, distinguidos por el campo `modo`.
+  if (!MODO_REPASO && typeof Almacen !== 'undefined') {
     Almacen.addIntento(EXAMEN_ID, {
       correctas,
       total,
       errores: estado.erroresPorId,
+      porSeccion: estado.resumenPorSeccion,
+      modo: MODO_ALEATORIO ? 'aleatorio' : 'fijo',
     });
   }
 

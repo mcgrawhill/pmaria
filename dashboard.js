@@ -1,4 +1,4 @@
-// Vista para padres: historial de intentos por examen + estadísticas básicas.
+// Vista para padres: historial de intentos por examen + desglose por sección.
 // Lee de Almacen, no toca localStorage directamente.
 
 (function () {
@@ -9,7 +9,6 @@
 
   const main = document.getElementById('dash-main');
 
-  // --- Resumen ---
   const todosIntentos = EXAMENES.flatMap(e => Almacen.getIntentos(e.id));
   const totalIntentos = todosIntentos.length;
   const totalCorrectas = todosIntentos.reduce((s, i) => s + i.correctas, 0);
@@ -33,6 +32,7 @@
           <div class="label">Racha (días)</div>
         </div>
       </div>
+      ${renderDesgloseGlobal(todosIntentos)}
     </section>
     ${renderExamenes()}
     <div class="acciones">
@@ -46,11 +46,40 @@
     }
   });
 
+  // ----- DESGLOSE GLOBAL DE TEMAS (suma de todas las secciones de todos los intentos) -----
+  function renderDesgloseGlobal(intentos) {
+    const acumulado = {};
+    intentos.forEach(it => {
+      const sec = it.porSeccion || {};
+      Object.entries(sec).forEach(([id, info]) => {
+        if (!acumulado[id]) acumulado[id] = { titulo: info.titulo, emoji: info.emoji, aciertos: 0, total: 0 };
+        acumulado[id].aciertos += info.aciertos;
+        acumulado[id].total += info.total;
+      });
+    });
+    const filas = Object.values(acumulado);
+    if (!filas.length) return '';
+    return `
+      <h3 style="margin-top:1.5rem;margin-bottom:0.5rem;">Por tema</h3>
+      <div class="temas-grid">
+        ${filas.map(f => {
+          const pct = f.total ? Math.round((f.aciertos / f.total) * 100) : 0;
+          const cls = pct >= 80 ? 'alto' : pct >= 50 ? 'medio' : 'bajo';
+          return `
+            <div class="tema-tarjeta">
+              <div class="tema-titulo">${f.emoji} ${f.titulo}</div>
+              <div class="tema-barra-wrap"><div class="tema-barra ${cls}" style="width:${pct}%"></div></div>
+              <div class="tema-detalle">${f.aciertos} / ${f.total} (${pct}%)</div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  }
+
   function renderExamenes() {
     return EXAMENES.map(e => {
       const intentos = Almacen.getIntentos(e.id);
-      const mejor = Almacen.mejorIntento(e.id);
-      const estrellas = mejor ? Estrellas.calcular(mejor.correctas, mejor.total) : 0;
+      const mejorFijo = Almacen.mejorIntento(e.id, { modo: 'fijo' });
+      const estrellas = mejorFijo ? Estrellas.calcular(mejorFijo.correctas, mejorFijo.total) : 0;
 
       const cuerpo = intentos.length
         ? renderTabla(intentos)
@@ -60,6 +89,9 @@
         <section class="dash-tarjeta">
           <h2>${e.emoji} ${e.titulo} ${Estrellas.render(estrellas)}</h2>
           <p style="color:#555;font-size:0.95rem;">${e.descripcion}</p>
+          ${mejorFijo
+            ? `<p style="color:#555;font-size:0.9rem;margin-top:0.3rem;">Las ⭐ miden el mejor intento del modo fijo.</p>`
+            : ''}
           ${cuerpo}
         </section>`;
     }).join('');
@@ -69,23 +101,38 @@
     return `
       <table class="intentos-tabla">
         <thead>
-          <tr><th>Fecha</th><th>Aciertos</th><th>Nota</th><th>Estrellas</th></tr>
+          <tr><th>Fecha</th><th>Modo</th><th>Aciertos</th><th>Nota</th><th>Por sección</th></tr>
         </thead>
         <tbody>
           ${intentos.map(it => {
             const pct = Math.round((it.correctas / it.total) * 100);
-            const cls = pct >= 80 ? 'alto' : pct >= 50 ? 'medio' : 'bajo';
-            const est = Estrellas.calcular(it.correctas, it.total);
+            const clsPct = pct >= 80 ? 'alto' : pct >= 50 ? 'medio' : 'bajo';
+            const modo = it.modo || 'fijo';
+            const badge = modo === 'aleatorio'
+              ? '<span class="modo-pill aleatorio">🎲 Aleatorio</span>'
+              : '<span class="modo-pill fijo">📋 Fijo</span>';
             return `
               <tr>
                 <td>${formatearFecha(it.fecha)}</td>
+                <td>${badge}</td>
                 <td>${it.correctas} / ${it.total}</td>
-                <td><span class="pct-pill ${cls}">${pct}%</span></td>
-                <td>${Estrellas.render(est)}</td>
+                <td><span class="pct-pill ${clsPct}">${pct}%</span></td>
+                <td>${renderPorSeccion(it.porSeccion)}</td>
               </tr>`;
           }).join('')}
         </tbody>
       </table>`;
+  }
+
+  function renderPorSeccion(porSeccion) {
+    if (!porSeccion) return '<span style="color:#999;">—</span>';
+    const filas = Object.values(porSeccion);
+    return `<div class="por-seccion">${filas.map(f => {
+      const ok = f.aciertos === f.total;
+      const fallos = f.total - f.aciertos;
+      const cls = ok ? 'sec-ok' : fallos > f.total / 2 ? 'sec-mal' : 'sec-medio';
+      return `<span class="sec-chip ${cls}" title="${f.aciertos} de ${f.total} acertados">${f.emoji} ${f.aciertos}/${f.total}</span>`;
+    }).join('')}</div>`;
   }
 
   function formatearFecha(iso) {

@@ -130,3 +130,70 @@ body.dashboard {
   cursor: pointer;
 }
 .boton-peligro:hover { background: #d63031; }
+
+/* ----- Modo (fijo / aleatorio) ----- */
+.modo-pill {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.modo-pill.fijo { background: #e3f0ff; color: #0984e3; }
+.modo-pill.aleatorio { background: #efeaff; color: #6c5ce7; }
+
+/* ----- Chips por sección ----- */
+.por-seccion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.sec-chip {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #f5f6fa;
+  color: #555;
+}
+.sec-chip.sec-ok { background: #d4f8e8; color: #00b894; }
+.sec-chip.sec-medio { background: #ffeaa7; color: #b7791f; }
+.sec-chip.sec-mal { background: #ffe0e0; color: #d63031; }
+
+/* ----- Desglose global por tema ----- */
+.temas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+.tema-tarjeta {
+  background: #f5f6fa;
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+}
+.tema-titulo {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+.tema-barra-wrap {
+  background: #d6d9de;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+.tema-barra {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s;
+}
+.tema-barra.alto { background: #00b894; }
+.tema-barra.medio { background: #fdcb6e; }
+.tema-barra.bajo { background: #ff7675; }
+.tema-detalle {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.4rem;
+}

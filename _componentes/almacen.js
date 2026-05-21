@@ -28,12 +28,15 @@ const Almacen = {
     return this._leer(this.CLAVES.historial, {});
   },
 
-  getIntentos(examenId) {
-    return (this.getHistorial()[examenId] || []).slice().reverse();
+  // Devuelve los intentos en orden cronológico inverso (más reciente primero).
+  // `opts.modo` filtra por 'fijo' | 'aleatorio'.
+  getIntentos(examenId, opts = {}) {
+    const todos = (this.getHistorial()[examenId] || []).slice().reverse();
+    return opts.modo ? todos.filter(it => (it.modo || 'fijo') === opts.modo) : todos;
   },
 
-  mejorIntento(examenId) {
-    const lista = this.getIntentos(examenId);
+  mejorIntento(examenId, opts = {}) {
+    const lista = this.getIntentos(examenId, opts);
     if (!lista.length) return null;
     return lista.reduce((mejor, it) => {
       const pct = it.correctas / it.total;
@@ -49,7 +52,9 @@ const Almacen = {
       fecha: new Date().toISOString(),
       correctas: intento.correctas,
       total: intento.total,
+      modo: intento.modo || 'fijo',
       errores: intento.errores || [],
+      porSeccion: intento.porSeccion || null,
     });
     this._guardar(this.CLAVES.historial, historial);
     this._tocarRacha();
@@ -105,3 +110,5 @@ const Almacen = {
     }
   },
 };
+
+if (typeof module !== 'undefined' && module.exports) module.exports = Almacen;
