@@ -23,3 +23,5 @@ const Estrellas = {
     return html;
   },
 };
+
+if (typeof module !== 'undefined' && module.exports) module.exports = Estrellas;

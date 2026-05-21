@@ -181,18 +181,35 @@ const SECCIONES = [
 // ---------- IDENTIDAD DEL EXAMEN ----------
 const EXAMEN_ID = 'examen-01-repaso-general';
 
+// El array SECCIONES de arriba contiene los ejercicios fijos (los del libro).
+// La sección de simetría se reutiliza también en modo aleatorio
+// (la galería curada no se genera algorítmicamente — ver Generador).
+const SECCION_SIMETRIA = SECCIONES.find(s => s.id === 'simetria');
+
+// Si la URL pide modo aleatorio, generamos ejercicios nuevos con Generador.
+function obtenerSeccionesBase() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('aleatorio') === '1' || params.has('semilla')) {
+    const semilla = parseInt(params.get('semilla'), 10) || Date.now();
+    return Generador.crearExamen({ semilla, simetriaCurada: SECCION_SIMETRIA });
+  }
+  return SECCIONES;
+}
+
 // Filtrar ejercicios si la URL trae ?repaso=id1,id2,...
-function filtrarSeccionesParaRepaso() {
+function filtrarSeccionesParaRepaso(base) {
   const params = new URLSearchParams(location.search);
   const ids = (params.get('repaso') || '').split(',').filter(Boolean);
-  if (!ids.length) return SECCIONES;
-  return SECCIONES
+  if (!ids.length) return base;
+  return base
     .map(sec => ({ ...sec, ejercicios: sec.ejercicios.filter(ej => ids.includes(ej.id)) }))
     .filter(sec => sec.ejercicios.length > 0);
 }
 
-const SECCIONES_ACTIVAS = filtrarSeccionesParaRepaso();
-const MODO_REPASO = SECCIONES_ACTIVAS !== SECCIONES;
+const SECCIONES_BASE = obtenerSeccionesBase();
+const SECCIONES_ACTIVAS = filtrarSeccionesParaRepaso(SECCIONES_BASE);
+const MODO_REPASO = SECCIONES_ACTIVAS !== SECCIONES_BASE;
+const MODO_ALEATORIO = SECCIONES_BASE !== SECCIONES;
 
 // ---------- ESTADO ----------
 const estado = {
@@ -232,6 +249,12 @@ function renderSeccion() {
     html += `<div class="seccion-intro" style="border-left-color:var(--rojo-osc);">
       <h2>🎯 Repaso de errores</h2>
       <p>Vamos a repetir solo los ejercicios que fallaste. ¡A por todos!</p>
+    </div>`;
+  }
+  if (MODO_ALEATORIO && estado.seccion === 0) {
+    html += `<div class="seccion-intro" style="border-left-color:var(--morado);">
+      <h2>🎲 Modo aleatorio</h2>
+      <p>Cada vez serán ejercicios distintos. ¡Vamos a por ello!</p>
     </div>`;
   }
   html += `<div class="seccion-intro">
@@ -532,8 +555,9 @@ function mostrarFinal() {
   const correctas = estado.totalCorrectas;
   const pct = Math.round((correctas / total) * 100);
 
-  // Guardar intento (solo en modo examen completo, no en repaso).
-  if (!MODO_REPASO && typeof Almacen !== 'undefined') {
+  // Guardar intento (solo en modo examen fijo: en repaso o aleatorio no representa
+  // el examen completo, mezclaría manzanas con peras en el historial).
+  if (!MODO_REPASO && !MODO_ALEATORIO && typeof Almacen !== 'undefined') {
     Almacen.addIntento(EXAMEN_ID, {
       correctas,
       total,

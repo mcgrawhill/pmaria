@@ -1,0 +1,12 @@
+{
+  "name": "alana",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Páginas web educativas para niños de 3.º-4.º Primaria.",
+  "scripts": {
+    "test": "node --test tests/"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

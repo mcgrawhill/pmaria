@@ -51,26 +51,49 @@ body.lista {
 .lista .card {
   background: white;
   border-radius: 24px;
-  padding: 1.5rem;
-  text-decoration: none;
+  padding: 0;
   color: inherit;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s, box-shadow 0.2s;
   border: 4px solid transparent;
+  overflow: hidden;
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  flex-direction: column;
 }
 .lista .card:hover,
-.lista .card:focus {
+.lista .card:focus-within {
   transform: translateY(-6px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
   border-color: #fd9644;
 }
-.lista .card .emoji {
+
+.lista .card-principal {
+  text-decoration: none;
+  color: inherit;
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+}
+.lista .card-principal .emoji {
   font-size: 3rem;
   line-height: 1;
   flex-shrink: 0;
 }
-.lista .card .info h2 { font-size: 1.25rem; margin-bottom: 0.2rem; }
-.lista .card .info p { color: #777; font-size: 0.95rem; }
+.lista .card-principal .info h2 { font-size: 1.25rem; margin-bottom: 0.2rem; }
+.lista .card-principal .info p { color: #777; font-size: 0.95rem; }
+
+.lista .card-aleatorio {
+  text-decoration: none;
+  background: #a29bfe;
+  color: white;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.15s;
+}
+.lista .card-aleatorio:hover {
+  background: #6c5ce7;
+}
