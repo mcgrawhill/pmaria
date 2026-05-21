@@ -1,0 +1,534 @@
+// =====================================================
+// EXAMEN 1 — Repaso general (3.º-4.º Primaria, EMAT)
+// Usa los componentes compartidos de matematicas/_componentes/
+// =====================================================
+
+// ---------- HELPERS DE RENDER ----------
+
+function displayFraccion(id, maxNum = 1, maxDen = 1) {
+  return `<span class="fraccion-input">
+    <button type="button" class="display-num vacio" data-id="${id}" data-parte="num" data-valor="" data-max="${maxNum}" aria-label="Numerador">–</button>
+    <span class="barra-fraccion"></span>
+    <button type="button" class="display-num vacio" data-id="${id}" data-parte="den" data-valor="" data-max="${maxDen}" aria-label="Denominador">–</button>
+  </span>`;
+}
+
+function displayNumero(id, max = 2, label = 'Respuesta') {
+  return `<button type="button" class="display-num ancha vacio" data-id="${id}" data-valor="" data-max="${max}" aria-label="${label}">–</button>`;
+}
+
+function opcionesBotones(id, opciones) {
+  return `<div class="opciones" data-id="${id}">
+    ${opciones.map(op => `<button type="button" class="opcion" data-valor="${op.valor}">${op.texto}</button>`).join('')}
+  </div>`;
+}
+
+function opcionesPrediccion(id) {
+  return `<div class="opciones predict" data-id="${id}">
+    <button type="button" class="opcion" data-valor="seguro">✅ Seguro</button>
+    <button type="button" class="opcion" data-valor="probable">🙂 Probable</button>
+    <button type="button" class="opcion" data-valor="improbable">😕 Improbable</button>
+    <button type="button" class="opcion" data-valor="imposible">❌ Imposible</button>
+  </div>`;
+}
+
+function selectorCoordenadas(id, letras = 'ABCDEFGH', filas = 8) {
+  let btnsLetras = '';
+  for (const l of letras) {
+    btnsLetras += `<button type="button" class="coord-btn" data-id="${id}" data-parte="letra" data-v="${l}">${l}</button>`;
+  }
+  let btnsNumeros = '';
+  for (let n = 1; n <= filas; n++) {
+    btnsNumeros += `<button type="button" class="coord-btn" data-id="${id}" data-parte="numero" data-v="${n}">${n}</button>`;
+  }
+  return `<div class="coord-selector" data-id="${id}">
+    <div class="coord-display vacio" id="coord-disp-${id}">–</div>
+    <div class="coord-fila-label">Elige una letra:</div>
+    <div class="coord-fila">${btnsLetras}</div>
+    <div class="coord-fila-label">Elige un número:</div>
+    <div class="coord-fila">${btnsNumeros}</div>
+  </div>`;
+}
+
+// ---------- DATOS DEL EXAMEN ----------
+
+const SECCIONES = [
+  {
+    id: 'fracciones',
+    emoji: '🍕',
+    titulo: 'Fracciones',
+    descripcion: 'Mira cada dibujo y pulsa los casilleros para escribir la fracción coloreada.',
+    ejercicios: [
+      { id: 'f1', tipo: 'fraccion', num: 3, den: 4 },
+      { id: 'f2', tipo: 'fraccion', num: 1, den: 3 },
+      { id: 'f3', tipo: 'fraccion', num: 4, den: 6 },
+      { id: 'f4', tipo: 'fraccion', num: 5, den: 8 },
+      { id: 'f5', tipo: 'fraccion', num: 3, den: 10, color: '#fd79a8' },
+    ],
+  },
+  {
+    id: 'comparar',
+    emoji: '⚖️',
+    titulo: 'Comparo fracciones',
+    descripcion: 'Pulsa el símbolo correcto: mayor, menor o igual.',
+    ejercicios: [
+      { id: 'c1', tipo: 'comparar', a: [1, 2], b: [1, 4] },
+      { id: 'c2', tipo: 'comparar', a: [1, 3], b: [1, 2] },
+      { id: 'c3', tipo: 'comparar', a: [3, 4], b: [2, 3] },
+      { id: 'c4', tipo: 'comparar', a: [2, 7], b: [3, 5] },
+      { id: 'c5', tipo: 'comparar', a: [3, 6], b: [1, 2] },
+      { id: 'c6', tipo: 'comparar', a: [5, 8], b: [1, 2] },
+      { id: 'c7', tipo: 'comparar', a: [2, 3], b: [6, 9] },
+      { id: 'c8', tipo: 'comparar', a: [4, 8], b: [1, 2] },
+    ],
+  },
+  {
+    id: 'areas',
+    emoji: '📐',
+    titulo: 'Calculo áreas',
+    descripcion: 'Cuenta los cuadrados de cada figura. Cada cuadradito vale 1 cm². Los medios cuadrados valen ½ cm².',
+    ejercicios: [
+      { id: 'a1', tipo: 'area', figura: { cols: 6, filas: 4, tipo: 'rect' }, respuesta: 24 },
+      { id: 'a2', tipo: 'area', figura: { cols: 5, filas: 3, tipo: 'rect', color: '#fd9644' }, respuesta: 15 },
+      { id: 'a3', tipo: 'area', figura: { cols: 4, filas: 4, tipo: 'rect', color: '#a29bfe' }, respuesta: 16 },
+      { id: 'a4', tipo: 'area', figura: { cols: 8, filas: 8, tipo: 'rect-diag', color: '#55efc4' }, respuesta: 32 },
+      { id: 'a5', tipo: 'area', figura: { cols: 6, filas: 5, tipo: 'L', cortarX: 4, cortarY: 2, color: '#fd79a8' }, respuesta: 26 },
+      { id: 'a6', tipo: 'area', figura: { cols: 4, filas: 4, tipo: 'triangulo', color: '#ffeaa7' }, respuesta: 8 },
+    ],
+  },
+  {
+    id: 'simetria',
+    emoji: '🦋',
+    titulo: 'Identifico figuras simétricas',
+    descripcion: 'Si la línea roja punteada divide la figura en dos mitades iguales (como un espejo), elige SÍ. Si no, elige NO.',
+    ejercicios: [
+      { id: 's1', tipo: 'simetria', figura: 'mariposa', mostrarEje: true, respuesta: 'si' },
+      { id: 's2', tipo: 'simetria', figura: 'letraA', mostrarEje: true, respuesta: 'si' },
+      { id: 's3', tipo: 'simetria', figura: 'letraP', mostrarEje: true, respuesta: 'no' },
+      { id: 's4', tipo: 'simetria', figura: 'corazon', mostrarEje: true, respuesta: 'si' },
+      { id: 's5', tipo: 'simetria', figura: 'irregular', mostrarEje: true, respuesta: 'no' },
+      { id: 's6', tipo: 'simetria', figura: 'pezVertical', mostrarEje: true, respuesta: 'no' },
+    ],
+  },
+  {
+    id: 'probabilidad',
+    emoji: '🎲',
+    titulo: 'Predigo el resultado',
+    descripcion: 'Mira las bolas de la bolsa y di si el suceso es seguro, probable, improbable o imposible.',
+    ejercicios: [
+      { id: 'p1', tipo: 'probabilidad', bolsa: [{ color: 'rojo', cantidad: 8 }], enunciado: 'Sacar una bola roja.', respuesta: 'seguro' },
+      { id: 'p2', tipo: 'probabilidad', bolsa: [{ color: 'rojo', cantidad: 8 }], enunciado: 'Sacar una bola azul.', respuesta: 'imposible' },
+      { id: 'p3', tipo: 'probabilidad', bolsa: [{ color: 'rojo', cantidad: 5 }, { color: 'azul', cantidad: 5 }], enunciado: 'Sacar una bola roja.', respuesta: 'probable' },
+      { id: 'p4', tipo: 'probabilidad', bolsa: [{ color: 'azul', cantidad: 9 }, { color: 'rojo', cantidad: 1 }], enunciado: 'Sacar una bola roja.', respuesta: 'improbable' },
+      { id: 'p5', tipo: 'probabilidad', bolsa: [{ color: 'azul', cantidad: 9 }, { color: 'rojo', cantidad: 1 }], enunciado: 'Sacar una bola azul.', respuesta: 'probable' },
+      { id: 'p6', tipo: 'probabilidad', bolsa: [{ color: 'rojo', cantidad: 5 }, { color: 'azul', cantidad: 5 }], enunciado: 'Sacar una bola verde.', respuesta: 'imposible' },
+    ],
+  },
+  {
+    id: 'plano',
+    emoji: '🗺️',
+    titulo: 'Juego con el plano cartesiano',
+    descripcion: 'Mira el tablero. Las columnas son letras (A-H) y las filas son números (1-8). Responde a cada pregunta.',
+    tablero: [
+      { emoji: '🚲', pos: 'C5', nombre: 'bicicleta' },
+      { emoji: '✈️', pos: 'F3', nombre: 'avion' },
+      { emoji: '🐟', pos: 'A7', nombre: 'pez' },
+      { emoji: '⚽', pos: 'E2', nombre: 'balon' },
+      { emoji: '🎯', pos: 'G6', nombre: 'diana' },
+      { emoji: '🎈', pos: 'B3', nombre: 'globo' },
+    ],
+    ejercicios: [
+      {
+        id: 'pl1', tipo: 'plano-que-hay',
+        enunciado: '¿Qué hay en la posición <strong>C5</strong>?',
+        opciones: [
+          { valor: 'bicicleta', texto: '🚲 Bicicleta' },
+          { valor: 'avion', texto: '✈️ Avión' },
+          { valor: 'pez', texto: '🐟 Pez' },
+          { valor: 'diana', texto: '🎯 Diana' },
+        ],
+        respuesta: 'bicicleta',
+      },
+      {
+        id: 'pl2', tipo: 'plano-que-hay',
+        enunciado: '¿Qué hay en la posición <strong>F3</strong>?',
+        opciones: [
+          { valor: 'balon', texto: '⚽ Balón' },
+          { valor: 'avion', texto: '✈️ Avión' },
+          { valor: 'globo', texto: '🎈 Globo' },
+          { valor: 'pez', texto: '🐟 Pez' },
+        ],
+        respuesta: 'avion',
+      },
+      { id: 'pl3', tipo: 'plano-posicion', enunciado: '¿En qué posición está el 🐟 pez?', respuesta: 'A7' },
+      { id: 'pl4', tipo: 'plano-posicion', enunciado: '¿En qué posición está la 🎯 diana?', respuesta: 'G6' },
+      { id: 'pl5', tipo: 'plano-posicion', enunciado: '¿En qué posición está el ⚽ balón?', respuesta: 'E2' },
+      {
+        id: 'pl6', tipo: 'plano-que-hay',
+        enunciado: '¿Qué hay en la posición <strong>B3</strong>?',
+        opciones: [
+          { valor: 'globo', texto: '🎈 Globo' },
+          { valor: 'bicicleta', texto: '🚲 Bicicleta' },
+          { valor: 'pez', texto: '🐟 Pez' },
+          { valor: 'avion', texto: '✈️ Avión' },
+        ],
+        respuesta: 'globo',
+      },
+    ],
+  },
+];
+
+// ---------- ESTADO ----------
+const estado = {
+  seccion: 0,
+  respuestas: {},
+  resultadoSeccion: {},
+  totalCorrectas: 0,
+  totalEjercicios: SECCIONES.reduce((s, sec) => s + sec.ejercicios.length, 0),
+};
+
+// ---------- RENDER ----------
+
+function renderPasos() {
+  const cont = document.getElementById('pasos');
+  cont.innerHTML = SECCIONES.map((sec, i) => {
+    let clase = 'paso';
+    if (i < estado.seccion) clase += ' hecho';
+    if (i === estado.seccion) clase += ' actual';
+    return `<div class="${clase}" data-i="${i}"><span>${sec.emoji}</span><span>${sec.titulo}</span></div>`;
+  }).join('');
+}
+
+function renderSeccion() {
+  const sec = SECCIONES[estado.seccion];
+  document.getElementById('seccion-titulo').textContent = `${sec.emoji} ${sec.titulo}`;
+  document.getElementById('seccion-subtitulo').textContent = `Sección ${estado.seccion + 1} de ${SECCIONES.length}`;
+  renderPasos();
+  actualizarBarra();
+
+  const main = document.getElementById('examen');
+  let html = `<div class="seccion-intro">
+    <h2>${sec.emoji} ${sec.titulo}</h2>
+    <p>${sec.descripcion}</p>
+  </div>`;
+
+  if (sec.id === 'plano' && sec.tablero) {
+    html += `<div class="ejercicio" style="border-left-color:var(--morado);">
+      <div class="ejercicio-enunciado"><strong>📋 Tablero del juego:</strong></div>
+      ${Figuras.planoCartesiano(sec.tablero)}
+    </div>`;
+  }
+
+  sec.ejercicios.forEach((ej, idx) => {
+    html += renderEjercicio(ej, idx + 1);
+  });
+
+  main.innerHTML = html;
+  conectarEventos();
+
+  document.getElementById('btn-comprobar').hidden = false;
+  document.getElementById('btn-siguiente').hidden = true;
+  document.getElementById('btn-final').hidden = true;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderEjercicio(ej, num) {
+  let contenido = '';
+
+  if (ej.tipo === 'fraccion') {
+    contenido = `
+      <div class="ejercicio-contenido">
+        ${Figuras.fraccionCirculo(ej.num, ej.den, ej.color || '#fd9644')}
+        <div>
+          <p style="margin-bottom:0.4rem;">Pulsa para escribir la fracción:</p>
+          ${displayFraccion(ej.id, String(ej.num).length, String(ej.den).length)}
+        </div>
+      </div>`;
+  } else if (ej.tipo === 'comparar') {
+    contenido = `
+      <div class="ejercicio-contenido">
+        ${Figuras.fraccionTexto(ej.a[0], ej.a[1])}
+        ${opcionesBotones(ej.id, [
+          { valor: '<', texto: '<' },
+          { valor: '=', texto: '=' },
+          { valor: '>', texto: '>' },
+        ])}
+        ${Figuras.fraccionTexto(ej.b[0], ej.b[1])}
+      </div>`;
+  } else if (ej.tipo === 'area') {
+    contenido = `
+      <div class="ejercicio-contenido">
+        ${Figuras.areaCuadricula(ej.figura)}
+        <div>
+          <p style="margin-bottom:0.4rem;">Área:</p>
+          ${displayNumero(ej.id, String(ej.respuesta).length, 'Área en cm²')}
+          <span style="margin-left:0.4rem;font-weight:600;">cm²</span>
+        </div>
+      </div>`;
+  } else if (ej.tipo === 'simetria') {
+    contenido = `
+      <div class="ejercicio-contenido">
+        ${Figuras.simetria(ej.figura, ej.mostrarEje)}
+        <div>
+          <p style="margin-bottom:0.4rem;">¿La línea roja es eje de simetría?</p>
+          ${opcionesBotones(ej.id, [
+            { valor: 'si', texto: '✓ Sí' },
+            { valor: 'no', texto: '✗ No' },
+          ])}
+        </div>
+      </div>`;
+  } else if (ej.tipo === 'probabilidad') {
+    contenido = `
+      <div class="ejercicio-contenido">
+        ${Figuras.bolsa(ej.bolsa)}
+        <div style="flex:1;min-width:200px;">
+          <p style="margin-bottom:0.6rem;font-size:1.05rem;"><strong>Suceso:</strong> ${ej.enunciado}</p>
+          ${opcionesPrediccion(ej.id)}
+        </div>
+      </div>`;
+  } else if (ej.tipo === 'plano-que-hay') {
+    contenido = `
+      <p class="ejercicio-enunciado" style="margin-bottom:0.6rem;">${ej.enunciado}</p>
+      ${opcionesBotones(ej.id, ej.opciones)}`;
+  } else if (ej.tipo === 'plano-posicion') {
+    contenido = `
+      <p class="ejercicio-enunciado" style="margin-bottom:0.6rem;">${ej.enunciado}</p>
+      ${selectorCoordenadas(ej.id)}`;
+  }
+
+  return `<div class="ejercicio" data-ej="${ej.id}">
+    <div class="ejercicio-enunciado">
+      <span class="ejercicio-num">${num}</span>
+    </div>
+    ${contenido}
+    <div class="feedback" id="fb-${ej.id}"></div>
+  </div>`;
+}
+
+function actualizarBarra() {
+  const pct = (estado.seccion / SECCIONES.length) * 100;
+  document.getElementById('barra-fill').style.width = `${pct}%`;
+}
+
+// ---------- INTERACCIÓN ----------
+
+function conectarEventos() {
+  // Botones de opciones
+  document.querySelectorAll('.opciones').forEach(grupo => {
+    grupo.querySelectorAll('.opcion').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled || btn.classList.contains('ok') || btn.classList.contains('ko')) return;
+        const id = grupo.dataset.id;
+        const valor = btn.dataset.valor;
+        grupo.querySelectorAll('.opcion').forEach(b => b.classList.remove('elegida'));
+        btn.classList.add('elegida');
+        estado.respuestas[id] = valor;
+      });
+    });
+  });
+
+  // Displays numéricos (abren teclado)
+  document.querySelectorAll('.display-num').forEach(disp => {
+    disp.addEventListener('click', () => {
+      if (disp.disabled) return;
+      const id = disp.dataset.id;
+      const parte = disp.dataset.parte;
+      Teclado.abrir(disp, {
+        maxDigitos: parseInt(disp.dataset.max, 10) || 1,
+        onCambio: (valor) => {
+          if (parte === 'num' || parte === 'den') {
+            if (!estado.respuestas[id]) estado.respuestas[id] = {};
+            estado.respuestas[id][parte] = valor;
+          } else {
+            estado.respuestas[id] = valor;
+          }
+        },
+      });
+    });
+  });
+
+  // Selectores de coordenadas (letra + número)
+  document.querySelectorAll('.coord-selector').forEach(sel => {
+    const id = sel.dataset.id;
+    sel.querySelectorAll('.coord-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        const parte = btn.dataset.parte;
+        const v = btn.dataset.v;
+        sel.querySelectorAll(`.coord-btn[data-parte="${parte}"]`).forEach(b => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        if (!estado.respuestas[id]) estado.respuestas[id] = {};
+        estado.respuestas[id][parte] = v;
+        actualizarDisplayCoord(id);
+      });
+    });
+  });
+}
+
+function actualizarDisplayCoord(id) {
+  const r = estado.respuestas[id] || {};
+  const txt = (r.letra || '') + (r.numero || '');
+  const disp = document.getElementById(`coord-disp-${id}`);
+  if (!disp) return;
+  disp.textContent = txt || '–';
+  disp.classList.toggle('vacio', !txt);
+}
+
+function comprobarSeccion() {
+  const sec = SECCIONES[estado.seccion];
+  let aciertos = 0;
+
+  sec.ejercicios.forEach(ej => {
+    const div = document.querySelector(`[data-ej="${ej.id}"]`);
+    const fb = document.getElementById(`fb-${ej.id}`);
+    let correcto = false;
+    let textoCorrecto = '';
+
+    if (ej.tipo === 'fraccion') {
+      const r = estado.respuestas[ej.id] || {};
+      const numOk = parseInt(r.num, 10) === ej.num;
+      const denOk = parseInt(r.den, 10) === ej.den;
+      correcto = numOk && denOk;
+      textoCorrecto = `${ej.num}/${ej.den}`;
+      const displays = div.querySelectorAll('.display-num');
+      displays.forEach(d => {
+        d.disabled = true;
+        if (d.dataset.parte === 'num') d.classList.add(numOk ? 'ok' : 'ko');
+        if (d.dataset.parte === 'den') d.classList.add(denOk ? 'ok' : 'ko');
+      });
+    } else if (ej.tipo === 'comparar') {
+      const v = estado.respuestas[ej.id];
+      const correcta = compararFracciones(ej.a[0], ej.a[1], ej.b[0], ej.b[1]);
+      correcto = v === correcta;
+      textoCorrecto = correcta;
+      marcarOpciones(div, ej.id, correcta);
+    } else if (ej.tipo === 'area') {
+      const v = parseInt(estado.respuestas[ej.id], 10);
+      correcto = v === ej.respuesta;
+      textoCorrecto = `${ej.respuesta} cm²`;
+      const d = div.querySelector('.display-num');
+      d.disabled = true;
+      d.classList.add(correcto ? 'ok' : 'ko');
+    } else if (ej.tipo === 'simetria') {
+      const v = estado.respuestas[ej.id];
+      correcto = v === ej.respuesta;
+      textoCorrecto = ej.respuesta === 'si' ? 'Sí' : 'No';
+      marcarOpciones(div, ej.id, ej.respuesta);
+    } else if (ej.tipo === 'probabilidad') {
+      const v = estado.respuestas[ej.id];
+      correcto = v === ej.respuesta;
+      textoCorrecto = textoPrediccion(ej.respuesta);
+      marcarOpciones(div, ej.id, ej.respuesta);
+    } else if (ej.tipo === 'plano-que-hay') {
+      const v = estado.respuestas[ej.id];
+      correcto = v === ej.respuesta;
+      const opCorrecta = ej.opciones.find(o => o.valor === ej.respuesta);
+      textoCorrecto = opCorrecta ? opCorrecta.texto : ej.respuesta;
+      marcarOpciones(div, ej.id, ej.respuesta);
+    } else if (ej.tipo === 'plano-posicion') {
+      const r = estado.respuestas[ej.id] || {};
+      const v = ((r.letra || '') + (r.numero || '')).toUpperCase();
+      correcto = v === ej.respuesta;
+      textoCorrecto = ej.respuesta;
+      const disp = document.getElementById(`coord-disp-${ej.id}`);
+      if (disp) disp.classList.add(correcto ? 'ok' : 'ko');
+      div.querySelectorAll('.coord-btn').forEach(b => b.disabled = true);
+    }
+
+    if (correcto) {
+      aciertos++;
+      div.classList.add('correcto');
+      fb.classList.add('mostrar', 'ok');
+      fb.innerHTML = `🎉 ¡Genial! Respuesta correcta.`;
+    } else {
+      div.classList.add('incorrecto');
+      fb.classList.add('mostrar', 'ko');
+      fb.innerHTML = `💡 La respuesta correcta es <strong>${textoCorrecto}</strong>. ¡La próxima vez seguro que aciertas!`;
+    }
+  });
+
+  estado.totalCorrectas += aciertos;
+  estado.resultadoSeccion[sec.id] = { aciertos, total: sec.ejercicios.length };
+  document.getElementById('puntos').textContent = estado.totalCorrectas;
+
+  document.getElementById('btn-comprobar').hidden = true;
+  if (estado.seccion < SECCIONES.length - 1) {
+    document.getElementById('btn-siguiente').hidden = false;
+  } else {
+    document.getElementById('btn-final').hidden = false;
+  }
+
+  // Resumen de sección
+  const main = document.getElementById('examen');
+  const resumen = document.createElement('div');
+  resumen.className = 'ejercicio';
+  resumen.style.borderLeftColor = aciertos === sec.ejercicios.length ? 'var(--verde-osc)' : 'var(--naranja)';
+  resumen.innerHTML = `
+    <h3 style="font-size:1.3rem;margin-bottom:0.4rem;">${aciertos === sec.ejercicios.length ? '🌟 ¡Perfecto!' : '👍 Buen trabajo'}</h3>
+    <p>Has acertado <strong>${aciertos} de ${sec.ejercicios.length}</strong> ejercicios en esta sección.</p>`;
+  main.appendChild(resumen);
+
+  if (aciertos === sec.ejercicios.length) Confeti.lanzar(60);
+}
+
+function marcarOpciones(div, id, valorCorrecto) {
+  const grupo = div.querySelector(`.opciones[data-id="${id}"]`);
+  if (!grupo) return;
+  grupo.querySelectorAll('.opcion').forEach(btn => {
+    btn.disabled = true;
+    const v = btn.dataset.valor;
+    if (v === valorCorrecto) btn.classList.add('ok', 'solucion');
+    if (btn.classList.contains('elegida') && v !== valorCorrecto) btn.classList.add('ko');
+  });
+}
+
+function compararFracciones(an, ad, bn, bd) {
+  const a = an / ad, b = bn / bd;
+  if (Math.abs(a - b) < 1e-9) return '=';
+  return a < b ? '<' : '>';
+}
+
+function textoPrediccion(v) {
+  return { seguro: '✅ Seguro', probable: '🙂 Probable', improbable: '😕 Improbable', imposible: '❌ Imposible' }[v];
+}
+
+function siguienteSeccion() {
+  estado.seccion++;
+  renderSeccion();
+}
+
+function mostrarFinal() {
+  document.getElementById('barra-fill').style.width = '100%';
+  const total = estado.totalEjercicios;
+  const correctas = estado.totalCorrectas;
+  const pct = Math.round((correctas / total) * 100);
+
+  let emoji, titulo, mensaje;
+  if (pct === 100) { emoji = '🏆'; titulo = '¡Increíble!'; mensaje = '¡Has acertado todas las preguntas! Eres un crack de las mates.'; }
+  else if (pct >= 80) { emoji = '🌟'; titulo = '¡Muy bien!'; mensaje = '¡Genial trabajo! Has hecho un examen estupendo.'; }
+  else if (pct >= 60) { emoji = '😊'; titulo = '¡Bien hecho!'; mensaje = 'Buen examen. Repasa lo que has fallado y la próxima será aún mejor.'; }
+  else if (pct >= 40) { emoji = '💪'; titulo = '¡Sigue así!'; mensaje = 'Vas avanzando. Practica un poco más y verás cómo mejoras.'; }
+  else { emoji = '🌱'; titulo = '¡A practicar!'; mensaje = 'Repasa con calma y vuelve a intentarlo. ¡Tú puedes!'; }
+
+  document.getElementById('modal-emoji').textContent = emoji;
+  document.getElementById('modal-titulo').textContent = titulo;
+  document.getElementById('modal-mensaje').textContent = mensaje;
+  document.getElementById('stat-correctas').textContent = correctas;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-porcentaje').textContent = pct + '%';
+  document.getElementById('modal-final').hidden = false;
+
+  if (pct >= 80) Confeti.lanzar(180);
+}
+
+// ---------- INIT ----------
+function init() {
+  Teclado.init();
+  renderSeccion();
+  document.getElementById('btn-comprobar').addEventListener('click', comprobarSeccion);
+  document.getElementById('btn-siguiente').addEventListener('click', siguienteSeccion);
+  document.getElementById('btn-final').addEventListener('click', mostrarFinal);
+}
+
+document.addEventListener('DOMContentLoaded', init);

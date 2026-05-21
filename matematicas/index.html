@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matemáticas — Alana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      color: #2d3436;
+    }
+    .back {
+      align-self: flex-start;
+      max-width: 900px;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    .back a {
+      color: #2d3436;
+      text-decoration: none;
+      font-size: 1.1rem;
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    p.subtitle {
+      font-size: clamp(1.1rem, 3vw, 1.3rem);
+      margin-bottom: 2rem;
+      text-align: center;
+      color: #555;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      width: 100%;
+    }
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 1.8rem 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 4px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .card:hover, .card:focus {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+      border-color: #fd9644;
+    }
+    .card .emoji { font-size: 3rem; }
+    .card .info h2 { font-size: 1.3rem; margin-bottom: 0.2rem; }
+    .card .info p { color: #777; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <div class="back"><a href="../index.html">← Inicio</a></div>
+  <h1>🔢 Matemáticas</h1>
+  <p class="subtitle">Elige un examen para practicar</p>
+  <div class="grid">
+    <a class="card" href="examen-01-repaso-general/index.html">
+      <span class="emoji">📝</span>
+      <div class="info">
+        <h2>Examen 1 — Repaso general</h2>
+        <p>Fracciones, áreas, simetría, probabilidad y plano cartesiano</p>
+      </div>
+    </a>
+  </div>
+</body>
+</html>

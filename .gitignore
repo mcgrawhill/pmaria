@@ -1,0 +1,15 @@
+# Capturas y zips de referencia (no deben publicarse)
+matematicas/capturas_libro/
+matematicas/examen_ejemplo/
+matematicas/*.zip
+
+# Configuración local de Claude
+.claude/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp

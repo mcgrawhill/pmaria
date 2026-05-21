@@ -1,0 +1,125 @@
+/* =====================================================
+   Teclado numérico modal (compartido entre exámenes)
+   ===================================================== */
+
+.teclado {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.18);
+  padding: 1rem 1rem 1.2rem;
+  z-index: 80;
+  animation: subir 0.25s ease;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@keyframes subir {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.teclado-teclas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.tecla {
+  font-family: inherit;
+  font-size: 1.7rem;
+  font-weight: 600;
+  background: #f5f6fa;
+  border: 3px solid transparent;
+  border-radius: 16px;
+  padding: 1rem 0;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.15s;
+  color: #2d3436;
+  min-height: 60px;
+}
+.tecla:hover { background: #e9ecf1; }
+.tecla:active { transform: scale(0.94); background: #d8dee9; }
+
+.tecla-cero {
+  grid-column: span 2;
+}
+
+.tecla-accion {
+  background: #ffeaa7;
+  color: #e17055;
+  font-size: 1.5rem;
+}
+.tecla-accion:hover { background: #fdcb6e; }
+
+/* Display clicable que abre el teclado */
+.display-num {
+  font-family: inherit;
+  background: #f5f6fa;
+  border: 3px dashed #b2bec3;
+  border-radius: 14px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2d3436;
+  cursor: pointer;
+  padding: 0.4rem 0.8rem;
+  min-width: 70px;
+  min-height: 50px;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+.display-num:hover { background: #e9ecf1; }
+.display-num.display-activo {
+  border-color: #74b9ff;
+  background: #e3f0ff;
+  border-style: solid;
+}
+.display-num.vacio { color: #b2bec3; }
+.display-num.ok {
+  border-color: #00b894;
+  border-style: solid;
+  background: #d4f8e8;
+  color: #00b894;
+}
+.display-num.ko {
+  border-color: #d63031;
+  border-style: solid;
+  background: #ffe0e0;
+  color: #d63031;
+}
+.display-num:disabled { cursor: not-allowed; }
+
+/* Fracción con dos displays apilados (numerador / denominador) */
+.fraccion-input {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+.fraccion-input .display-num {
+  width: 80px;
+  min-height: 56px;
+}
+.fraccion-input .barra-fraccion {
+  width: 80px;
+  height: 4px;
+  background: #2d3436;
+  border-radius: 2px;
+}
+
+.display-num.ancha {
+  min-width: 130px;
+}
+
+/* Overlay debajo del teclado para cerrar tocando fuera */
+.teclado-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 70;
+  animation: fade 0.2s ease;
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }

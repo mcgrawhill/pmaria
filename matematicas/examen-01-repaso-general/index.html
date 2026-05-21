@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examen 1 — Repaso general | Matemáticas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_componentes/examen.css" />
+  <link rel="stylesheet" href="../_componentes/teclado.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="cabecera">
+    <a class="volver" href="../index.html" aria-label="Volver a matemáticas">←</a>
+    <div class="titulo-bloque">
+      <h1 id="seccion-titulo">📝 Examen de repaso</h1>
+      <p id="seccion-subtitulo" class="subtitulo">Cargando...</p>
+    </div>
+    <div class="puntuacion" aria-label="Puntuación actual">
+      <span class="estrella">⭐</span>
+      <span id="puntos">0</span>
+    </div>
+  </header>
+
+  <div class="barra-progreso" aria-hidden="true">
+    <div id="barra-fill" class="barra-fill"></div>
+  </div>
+
+  <nav class="pasos" id="pasos" aria-label="Secciones del examen"></nav>
+
+  <main id="examen" class="examen"></main>
+
+  <footer class="pie">
+    <button id="btn-comprobar" class="boton boton-comprobar" type="button">
+      Comprobar respuestas ✓
+    </button>
+    <button id="btn-siguiente" class="boton boton-siguiente" type="button" hidden>
+      Siguiente sección →
+    </button>
+    <button id="btn-final" class="boton boton-final" type="button" hidden>
+      Ver mi resultado 🎉
+    </button>
+  </footer>
+
+  <div id="modal-final" class="modal" hidden>
+    <div class="modal-contenido">
+      <div class="modal-emoji" id="modal-emoji">🎉</div>
+      <h2 id="modal-titulo">¡Genial!</h2>
+      <p id="modal-mensaje" class="modal-mensaje"></p>
+      <div class="modal-stats">
+        <div class="stat">
+          <span class="stat-num" id="stat-correctas">0</span>
+          <span class="stat-label">Acertados</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" id="stat-total">0</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" id="stat-porcentaje">0%</span>
+          <span class="stat-label">Nota</span>
+        </div>
+      </div>
+      <button class="boton boton-reiniciar" type="button" onclick="location.reload()">
+        Volver a intentar 🔄
+      </button>
+      <a class="boton boton-volver" href="../index.html">Volver a matemáticas</a>
+    </div>
+  </div>
+
+  <canvas id="confeti" aria-hidden="true"></canvas>
+
+  <div id="teclado" class="teclado" hidden aria-label="Teclado numérico">
+    <div class="teclado-teclas">
+      <button type="button" class="tecla" data-tecla="1">1</button>
+      <button type="button" class="tecla" data-tecla="2">2</button>
+      <button type="button" class="tecla" data-tecla="3">3</button>
+      <button type="button" class="tecla" data-tecla="4">4</button>
+      <button type="button" class="tecla" data-tecla="5">5</button>
+      <button type="button" class="tecla" data-tecla="6">6</button>
+      <button type="button" class="tecla" data-tecla="7">7</button>
+      <button type="button" class="tecla" data-tecla="8">8</button>
+      <button type="button" class="tecla" data-tecla="9">9</button>
+      <button type="button" class="tecla tecla-cero" data-tecla="0">0</button>
+      <button type="button" class="tecla tecla-accion" data-tecla="borrar" aria-label="Borrar">⌫</button>
+    </div>
+  </div>
+
+  <script src="../_componentes/figuras.js"></script>
+  <script src="../_componentes/teclado.js"></script>
+  <script src="../_componentes/confeti.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
