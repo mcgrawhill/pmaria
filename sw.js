@@ -1,7 +1,8 @@
-// Service Worker mínimo para Alana — cache-first con fallback a red.
-// Permite usar la app offline tras la primera visita.
+// Service Worker mínimo para Alana.
+// Estrategia: stale-while-revalidate (responde cacheado y refresca en segundo plano).
+// Subir CACHE_NAME al cambiar este archivo para invalidar el cache anterior.
 
-const CACHE_NAME = 'alana-v1';
+const CACHE_NAME = 'alana-v2';
 const ARCHIVOS_BASE = [
   './',
   'index.html',
@@ -30,7 +31,6 @@ const ARCHIVOS_BASE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
-      // Si falla algún archivo (404), no romper la instalación.
       Promise.all(ARCHIVOS_BASE.map((u) => cache.add(u).catch(() => null)))
     )
   );
@@ -48,17 +48,18 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  if (new URL(event.request.url).origin !== location.origin) return;
+
   event.respondWith(
-    caches.match(event.request).then((cacheado) =>
-      cacheado ||
-      fetch(event.request).then((resp) => {
-        // Guardar en caché las respuestas correctas del mismo origen
-        if (resp.ok && new URL(event.request.url).origin === location.origin) {
-          const copia = resp.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(event.request, copia));
-        }
-        return resp;
-      }).catch(() => cacheado)
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.match(event.request).then((cacheado) => {
+        const red = fetch(event.request).then((resp) => {
+          if (resp && resp.ok) cache.put(event.request, resp.clone());
+          return resp;
+        }).catch(() => cacheado);
+        // Devolver cacheado si existe (rápido) y actualizar en segundo plano.
+        return cacheado || red;
+      })
     )
   );
 });
