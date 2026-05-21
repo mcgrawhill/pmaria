@@ -1,0 +1,132 @@
+body.dashboard {
+  background: linear-gradient(180deg, #f0f4ff 0%, #e0e7ff 100%);
+  background-attachment: fixed;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  min-height: 100vh;
+  padding: 1rem 1rem 4rem;
+  color: #2d3436;
+}
+
+.dash-header {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+.volver-link {
+  display: inline-block;
+  background: white;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #2d3436;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+.dash-header h1 {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin: 0.5rem 0 0.2rem;
+}
+.dash-subtitle { color: #555; }
+
+.dash-main {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dash-tarjeta {
+  background: white;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.dash-tarjeta h2 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.resumen-celda {
+  background: #f5f6fa;
+  border-radius: 14px;
+  padding: 1rem;
+  text-align: center;
+}
+.resumen-celda .num {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0984e3;
+}
+.resumen-celda .label {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.intentos-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.8rem;
+  font-size: 0.95rem;
+}
+.intentos-tabla th,
+.intentos-tabla td {
+  padding: 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecf1;
+}
+.intentos-tabla th {
+  background: #f5f6fa;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.intentos-tabla .pct-pill {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.intentos-tabla .pct-pill.alto { background: #d4f8e8; color: #00b894; }
+.intentos-tabla .pct-pill.medio { background: #ffeaa7; color: #e17055; }
+.intentos-tabla .pct-pill.bajo { background: #ffe0e0; color: #d63031; }
+
+.dash-vacio {
+  text-align: center;
+  color: #888;
+  padding: 2rem 1rem;
+  font-style: italic;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+.boton-peligro {
+  background: #ff7675;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.boton-peligro:hover { background: #d63031; }

@@ -1,0 +1,136 @@
+/* =====================================================
+   Estilos para perfil + estrellas + racha
+   ===================================================== */
+
+.perfil-bloque {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.perfil-avatar {
+  font-size: 3rem;
+  background: white;
+  border: 3px solid #74b9ff;
+  border-radius: 50%;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+.perfil-avatar:hover { transform: scale(1.08); }
+
+.perfil-texto {
+  text-align: center;
+}
+.perfil-texto h1 {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.perfil-edit {
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  color: #0984e3;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  margin-top: 0.3rem;
+}
+.perfil-edit:hover { background: rgba(9, 132, 227, 0.1); }
+.perfil-edit.destacado {
+  background: #fdcb6e;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+}
+
+.racha {
+  background: #ff7675;
+  color: white;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(255, 118, 117, 0.4);
+}
+
+/* Modal de edición de perfil */
+.perfil-modal { z-index: 110; }
+.perfil-input {
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  border: 3px solid #74b9ff;
+  border-radius: 14px;
+  width: 100%;
+  text-align: center;
+  outline: none;
+  background: #f5f6fa;
+  margin-top: 0.5rem;
+}
+.perfil-input:focus { background: white; }
+
+.perfil-avatares {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.4rem;
+  margin: 0.5rem 0 1rem;
+}
+.perfil-avatar-opcion {
+  font-size: 1.8rem;
+  background: #f5f6fa;
+  border: 3px solid transparent;
+  border-radius: 14px;
+  padding: 0.3rem;
+  cursor: pointer;
+  transition: all 0.1s;
+  line-height: 1;
+}
+.perfil-avatar-opcion:hover { background: #e9ecf1; }
+.perfil-avatar-opcion.elegido {
+  border-color: #0984e3;
+  background: #e3f0ff;
+  transform: scale(1.1);
+}
+
+.perfil-acciones {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* Estrellas (calificación de exámenes) */
+.estrellas {
+  display: inline-flex;
+  gap: 0.1rem;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.estrella-on { color: #fdcb6e; filter: drop-shadow(0 1px 2px rgba(253, 203, 110, 0.5)); }
+.estrella-off { color: #d6d9de; }
+
+/* Tarjeta de examen con info adicional (en matematicas/index.html) */
+.examen-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.4rem;
+}
+.examen-info .estrellas { font-size: 1.1rem; }

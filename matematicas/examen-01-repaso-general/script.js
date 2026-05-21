@@ -178,20 +178,37 @@ const SECCIONES = [
   },
 ];
 
+// ---------- IDENTIDAD DEL EXAMEN ----------
+const EXAMEN_ID = 'examen-01-repaso-general';
+
+// Filtrar ejercicios si la URL trae ?repaso=id1,id2,...
+function filtrarSeccionesParaRepaso() {
+  const params = new URLSearchParams(location.search);
+  const ids = (params.get('repaso') || '').split(',').filter(Boolean);
+  if (!ids.length) return SECCIONES;
+  return SECCIONES
+    .map(sec => ({ ...sec, ejercicios: sec.ejercicios.filter(ej => ids.includes(ej.id)) }))
+    .filter(sec => sec.ejercicios.length > 0);
+}
+
+const SECCIONES_ACTIVAS = filtrarSeccionesParaRepaso();
+const MODO_REPASO = SECCIONES_ACTIVAS !== SECCIONES;
+
 // ---------- ESTADO ----------
 const estado = {
   seccion: 0,
   respuestas: {},
   resultadoSeccion: {},
   totalCorrectas: 0,
-  totalEjercicios: SECCIONES.reduce((s, sec) => s + sec.ejercicios.length, 0),
+  totalEjercicios: SECCIONES_ACTIVAS.reduce((s, sec) => s + sec.ejercicios.length, 0),
+  erroresPorId: [],
 };
 
 // ---------- RENDER ----------
 
 function renderPasos() {
   const cont = document.getElementById('pasos');
-  cont.innerHTML = SECCIONES.map((sec, i) => {
+  cont.innerHTML = SECCIONES_ACTIVAS.map((sec, i) => {
     let clase = 'paso';
     if (i < estado.seccion) clase += ' hecho';
     if (i === estado.seccion) clase += ' actual';
@@ -200,14 +217,24 @@ function renderPasos() {
 }
 
 function renderSeccion() {
-  const sec = SECCIONES[estado.seccion];
+  const sec = SECCIONES_ACTIVAS[estado.seccion];
   document.getElementById('seccion-titulo').textContent = `${sec.emoji} ${sec.titulo}`;
-  document.getElementById('seccion-subtitulo').textContent = `Sección ${estado.seccion + 1} de ${SECCIONES.length}`;
+  const subt = MODO_REPASO
+    ? `Repaso de errores · Sección ${estado.seccion + 1} de ${SECCIONES_ACTIVAS.length}`
+    : `Sección ${estado.seccion + 1} de ${SECCIONES_ACTIVAS.length}`;
+  document.getElementById('seccion-subtitulo').textContent = subt;
   renderPasos();
   actualizarBarra();
 
   const main = document.getElementById('examen');
-  let html = `<div class="seccion-intro">
+  let html = '';
+  if (MODO_REPASO && estado.seccion === 0) {
+    html += `<div class="seccion-intro" style="border-left-color:var(--rojo-osc);">
+      <h2>🎯 Repaso de errores</h2>
+      <p>Vamos a repetir solo los ejercicios que fallaste. ¡A por todos!</p>
+    </div>`;
+  }
+  html += `<div class="seccion-intro">
     <h2>${sec.emoji} ${sec.titulo}</h2>
     <p>${sec.descripcion}</p>
   </div>`;
@@ -307,7 +334,7 @@ function renderEjercicio(ej, num) {
 }
 
 function actualizarBarra() {
-  const pct = (estado.seccion / SECCIONES.length) * 100;
+  const pct = (estado.seccion / SECCIONES_ACTIVAS.length) * 100;
   document.getElementById('barra-fill').style.width = `${pct}%`;
 }
 
@@ -376,7 +403,7 @@ function actualizarDisplayCoord(id) {
 }
 
 function comprobarSeccion() {
-  const sec = SECCIONES[estado.seccion];
+  const sec = SECCIONES_ACTIVAS[estado.seccion];
   let aciertos = 0;
 
   sec.ejercicios.forEach(ej => {
@@ -445,6 +472,7 @@ function comprobarSeccion() {
       div.classList.add('incorrecto');
       fb.classList.add('mostrar', 'ko');
       fb.innerHTML = `💡 La respuesta correcta es <strong>${textoCorrecto}</strong>. ¡La próxima vez seguro que aciertas!`;
+      estado.erroresPorId.push(ej.id);
     }
   });
 
@@ -453,7 +481,7 @@ function comprobarSeccion() {
   document.getElementById('puntos').textContent = estado.totalCorrectas;
 
   document.getElementById('btn-comprobar').hidden = true;
-  if (estado.seccion < SECCIONES.length - 1) {
+  if (estado.seccion < SECCIONES_ACTIVAS.length - 1) {
     document.getElementById('btn-siguiente').hidden = false;
   } else {
     document.getElementById('btn-final').hidden = false;
@@ -504,6 +532,15 @@ function mostrarFinal() {
   const correctas = estado.totalCorrectas;
   const pct = Math.round((correctas / total) * 100);
 
+  // Guardar intento (solo en modo examen completo, no en repaso).
+  if (!MODO_REPASO && typeof Almacen !== 'undefined') {
+    Almacen.addIntento(EXAMEN_ID, {
+      correctas,
+      total,
+      errores: estado.erroresPorId,
+    });
+  }
+
   let emoji, titulo, mensaje;
   if (pct === 100) { emoji = '🏆'; titulo = '¡Increíble!'; mensaje = '¡Has acertado todas las preguntas! Eres un crack de las mates.'; }
   else if (pct >= 80) { emoji = '🌟'; titulo = '¡Muy bien!'; mensaje = '¡Genial trabajo! Has hecho un examen estupendo.'; }
@@ -517,6 +554,24 @@ function mostrarFinal() {
   document.getElementById('stat-correctas').textContent = correctas;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-porcentaje').textContent = pct + '%';
+
+  // Botón de repaso de errores si hay fallos y no estamos ya repasando.
+  const btnRepaso = document.getElementById('boton-repaso');
+  if (btnRepaso) btnRepaso.remove();
+  if (estado.erroresPorId.length > 0 && !MODO_REPASO) {
+    const cont = document.querySelector('#modal-final .modal-contenido');
+    const reinicio = cont.querySelector('.boton-reiniciar');
+    const btn = document.createElement('button');
+    btn.id = 'boton-repaso';
+    btn.className = 'boton boton-siguiente';
+    btn.type = 'button';
+    btn.innerHTML = `Repetir solo los ${estado.erroresPorId.length} fallos 🎯`;
+    btn.addEventListener('click', () => {
+      location.search = '?repaso=' + estado.erroresPorId.join(',');
+    });
+    cont.insertBefore(btn, reinicio);
+  }
+
   document.getElementById('modal-final').hidden = false;
 
   if (pct >= 80) Confeti.lanzar(180);

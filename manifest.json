@@ -1,0 +1,20 @@
+{
+  "name": "Alana — Aprende jugando",
+  "short_name": "Alana",
+  "description": "Ejercicios escolares de matemáticas para niños y niñas de 3.º-4.º de Primaria.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8f0",
+  "theme_color": "#74b9ff",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

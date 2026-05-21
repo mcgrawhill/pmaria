@@ -1,0 +1,76 @@
+/* Listado de exámenes de matemáticas */
+
+body.lista {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  background-attachment: fixed;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  min-height: 100vh;
+  padding: 2rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #2d3436;
+}
+
+.lista .back {
+  align-self: flex-start;
+  max-width: 900px;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+.lista .back a {
+  color: #2d3436;
+  text-decoration: none;
+  font-size: 1.1rem;
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.lista h1 {
+  font-size: clamp(2.2rem, 6vw, 3.5rem);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+.lista .subtitle {
+  font-size: clamp(1.1rem, 3vw, 1.3rem);
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #555;
+}
+
+.lista .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 900px;
+  width: 100%;
+}
+
+.lista .card {
+  background: white;
+  border-radius: 24px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 4px solid transparent;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.lista .card:hover,
+.lista .card:focus {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border-color: #fd9644;
+}
+.lista .card .emoji {
+  font-size: 3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.lista .card .info h2 { font-size: 1.25rem; margin-bottom: 0.2rem; }
+.lista .card .info p { color: #777; font-size: 0.95rem; }

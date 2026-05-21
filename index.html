@@ -3,95 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#74b9ff" />
   <title>Alana — Aprende jugando</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet" />
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Fredoka', sans-serif;
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      color: #2d3436;
-    }
-    h1 {
-      font-size: clamp(2.5rem, 7vw, 4rem);
-      margin-bottom: 0.5rem;
-      text-align: center;
-    }
-    p.subtitle {
-      font-size: clamp(1.1rem, 3vw, 1.4rem);
-      margin-bottom: 2.5rem;
-      text-align: center;
-      color: #555;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.5rem;
-      max-width: 900px;
-      width: 100%;
-    }
-    .card {
-      background: white;
-      border-radius: 24px;
-      padding: 2rem 1.5rem;
-      text-align: center;
-      text-decoration: none;
-      color: inherit;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: 4px solid transparent;
-    }
-    .card:hover, .card:focus {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-      border-color: #74b9ff;
-    }
-    .card .emoji {
-      font-size: 4rem;
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    .card h2 {
-      font-size: 1.6rem;
-      margin-bottom: 0.3rem;
-    }
-    .card .desc {
-      color: #777;
-      font-size: 1rem;
-    }
-    .card.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_componentes/examen.css" />
+  <link rel="stylesheet" href="_componentes/perfil.css" />
+  <link rel="stylesheet" href="portada.css" />
 </head>
-<body>
-  <h1>¡Hola! 👋</h1>
-  <p class="subtitle">Elige una asignatura para aprender</p>
-  <div class="grid">
-    <a class="card" href="matematicas/index.html">
-      <span class="emoji">🔢</span>
-      <h2>Matemáticas</h2>
-      <span class="desc">Fracciones, áreas y más</span>
-    </a>
-    <div class="card disabled">
-      <span class="emoji">📖</span>
-      <h2>Lengua</h2>
-      <span class="desc">Próximamente</span>
+<body class="portada">
+  <main class="portada-main">
+    <div id="perfil-cont"></div>
+    <p class="subtitle">Elige una asignatura para aprender</p>
+    <div class="grid">
+      <a class="card" href="matematicas/index.html">
+        <span class="emoji">🔢</span>
+        <h2>Matemáticas</h2>
+        <span class="desc">Fracciones, áreas y más</span>
+      </a>
+      <div class="card disabled">
+        <span class="emoji">📖</span>
+        <h2>Lengua</h2>
+        <span class="desc">Próximamente</span>
+      </div>
+      <div class="card disabled">
+        <span class="emoji">🔬</span>
+        <h2>Ciencias</h2>
+        <span class="desc">Próximamente</span>
+      </div>
     </div>
-    <div class="card disabled">
-      <span class="emoji">🔬</span>
-      <h2>Ciencias</h2>
-      <span class="desc">Próximamente</span>
-    </div>
-  </div>
+    <a class="enlace-padres" href="dashboard.html">👪 Zona de padres</a>
+  </main>
+
+  <script src="_componentes/almacen.js"></script>
+  <script src="_componentes/perfil.js"></script>
+  <script src="_componentes/pwa.js"></script>
+  <script>
+    document.getElementById('perfil-cont').innerHTML = Perfil.render();
+    Perfil.conectarBotones();
+    if (window.PWA) PWA.registrar();
+  </script>
 </body>
 </html>
