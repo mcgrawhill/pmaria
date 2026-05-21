@@ -9,6 +9,7 @@ const Almacen = {
     perfil: 'alana.perfil',
     historial: 'alana.historial',
     racha: 'alana.racha',
+    borradores: 'alana.borradores',
   },
 
   // ---------- PERFIL ----------
@@ -62,6 +63,37 @@ const Almacen = {
 
   limpiarHistorial() {
     this._guardar(this.CLAVES.historial, {});
+  },
+
+  // ---------- BORRADORES (progreso de un examen sin completar) ----------
+  // Clave libre: el llamador decide cómo identificar el borrador
+  // (típicamente examenId + modo + semilla).
+
+  getBorrador(clave) {
+    return this._leer(this.CLAVES.borradores, {})[clave] || null;
+  },
+
+  setBorrador(clave, datos) {
+    const todos = this._leer(this.CLAVES.borradores, {});
+    todos[clave] = { ...datos, fecha: new Date().toISOString() };
+    this._guardar(this.CLAVES.borradores, todos);
+  },
+
+  borrarBorrador(clave) {
+    const todos = this._leer(this.CLAVES.borradores, {});
+    delete todos[clave];
+    this._guardar(this.CLAVES.borradores, todos);
+  },
+
+  // Devuelve todos los borradores de un examen (cualquier modo).
+  listarBorradores(examenId) {
+    const todos = this._leer(this.CLAVES.borradores, {});
+    return Object.entries(todos)
+      .filter(([k]) => k.startsWith(examenId + '::'))
+      .map(([clave, datos]) => {
+        const partes = clave.split('::');
+        return { clave, modo: partes[1] || 'fijo', semilla: partes[2] || null, ...datos };
+      });
   },
 
   // ---------- RACHA DIARIA ----------

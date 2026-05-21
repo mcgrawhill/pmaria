@@ -30,9 +30,16 @@
         const mejor = Almacen.mejorIntento(e.id, { modo: 'fijo' });
         const estrellas = mejor ? Estrellas.calcular(mejor.correctas, mejor.total) : 0;
         const pct = mejor ? Math.round((mejor.correctas / mejor.total) * 100) : null;
+        const borradores = Almacen.listarBorradores(e.id);
+        const fijo = borradores.find(b => b.modo === 'fijo');
+        const aleatorio = borradores.find(b => b.modo === 'aleatorio');
+        const chipFijo = fijo
+          ? `<a class="chip-empezado" href="${e.url}">📌 Tienes uno empezado — Continuar →</a>` : '';
+        const chipAleat = aleatorio
+          ? `<a class="chip-empezado aleatorio" href="${e.url}?semilla=${aleatorio.semilla}">🎲 Aleatorio empezado — Continuar →</a>` : '';
         return `
           <article class="card">
-            <a class="card-principal" href="${e.url}">
+            <div class="card-cuerpo">
               <span class="emoji">${e.emoji}</span>
               <div class="info">
                 <h2>${e.titulo}</h2>
@@ -40,10 +47,15 @@
                 <div class="examen-info">
                   ${Estrellas.render(estrellas)}
                   ${mejor ? `<span>Mejor: ${pct}% (${mejor.correctas}/${mejor.total})</span>` : '<span>Aún no lo has hecho</span>'}
+                  ${chipFijo}
+                  ${chipAleat}
                 </div>
               </div>
-            </a>
-            <a class="card-aleatorio" href="${e.url}?aleatorio=1" title="Generar ejercicios nuevos cada vez">🎲 Modo aleatorio</a>
+            </div>
+            <div class="card-acciones">
+              <a class="card-boton primario" href="${e.url}">📋 Empezar</a>
+              <a class="card-boton secundario" href="${e.url}?aleatorio=1" title="Ejercicios nuevos cada vez">🎲 Aleatorio</a>
+            </div>
           </article>`;
       }).join('');
     })();

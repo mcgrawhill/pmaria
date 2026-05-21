@@ -187,10 +187,20 @@ const EXAMEN_ID = 'examen-01-repaso-general';
 const SECCION_SIMETRIA = SECCIONES.find(s => s.id === 'simetria');
 
 // Si la URL pide modo aleatorio, generamos ejercicios nuevos con Generador.
+// La semilla se fija en la URL la primera vez para que el examen sea
+// recuperable: al volver con la misma URL, mismos ejercicios.
+let SEMILLA_USADA = null;
 function obtenerSeccionesBase() {
   const params = new URLSearchParams(location.search);
   if (params.get('aleatorio') === '1' || params.has('semilla')) {
-    const semilla = parseInt(params.get('semilla'), 10) || Date.now();
+    let semilla = parseInt(params.get('semilla'), 10);
+    if (!semilla) {
+      semilla = Date.now() % 2147483647;
+      params.delete('aleatorio');
+      params.set('semilla', semilla);
+      history.replaceState(null, '', `?${params.toString()}`);
+    }
+    SEMILLA_USADA = semilla;
     return Generador.crearExamen({ semilla, simetriaCurada: SECCION_SIMETRIA });
   }
   return SECCIONES;
@@ -554,6 +564,7 @@ function textoPrediccion(v) {
 
 function siguienteSeccion() {
   estado.seccion++;
+  guardarBorrador();
   renderSeccion();
 }
 
@@ -573,6 +584,7 @@ function mostrarFinal() {
       porSeccion: estado.resumenPorSeccion,
       modo: MODO_ALEATORIO ? 'aleatorio' : 'fijo',
     });
+    descartarBorrador();
   }
 
   let emoji, titulo, mensaje;
@@ -648,11 +660,92 @@ function enlazarBotonesPie() {
   if (btnFin) btnFin.addEventListener('click', mostrarFinal);
 }
 
+// ---------- BORRADOR (continuar examen abandonado) ----------
+// Identificador único del borrador: examen + modo + semilla (si aleatorio).
+function claveBorrador() {
+  if (MODO_ALEATORIO) return `${EXAMEN_ID}::aleatorio::${SEMILLA_USADA}`;
+  return `${EXAMEN_ID}::fijo`;
+}
+
+function guardarBorrador() {
+  if (MODO_REPASO || typeof Almacen === 'undefined') return;
+  Almacen.setBorrador(claveBorrador(), {
+    seccion: estado.seccion,
+    totalCorrectas: estado.totalCorrectas,
+    resultadoSeccion: estado.resultadoSeccion,
+    resumenPorSeccion: estado.resumenPorSeccion,
+    erroresPorId: estado.erroresPorId,
+  });
+}
+
+function descartarBorrador() {
+  if (MODO_REPASO || typeof Almacen === 'undefined') return;
+  Almacen.borrarBorrador(claveBorrador());
+}
+
+function leerBorradorPendiente() {
+  if (MODO_REPASO || typeof Almacen === 'undefined') return null;
+  const b = Almacen.getBorrador(claveBorrador());
+  if (!b) return null;
+  // Si el borrador apunta más allá del último, está obsoleto.
+  if (typeof b.seccion !== 'number' || b.seccion < 1 || b.seccion >= SECCIONES_ACTIVAS.length) {
+    descartarBorrador();
+    return null;
+  }
+  return b;
+}
+
+function aplicarBorrador(b) {
+  estado.seccion = b.seccion;
+  estado.totalCorrectas = b.totalCorrectas || 0;
+  estado.resultadoSeccion = b.resultadoSeccion || {};
+  estado.resumenPorSeccion = b.resumenPorSeccion || {};
+  estado.erroresPorId = b.erroresPorId || [];
+  document.getElementById('puntos').textContent = estado.totalCorrectas;
+}
+
+function mostrarBannerContinuar(borrador) {
+  const main = document.getElementById('examen');
+  const fecha = new Date(borrador.fecha).toLocaleString('es-ES', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+  });
+  document.getElementById('seccion-titulo').textContent = `📌 Examen empezado`;
+  document.getElementById('seccion-subtitulo').textContent = 'Decide cómo quieres seguir';
+  main.innerHTML = `
+    <div class="seccion-intro" style="border-left-color:var(--azul-osc);">
+      <h2>📌 Tienes este examen empezado</h2>
+      <p>Lo dejaste el <strong>${fecha}</strong>. Vas por la sección <strong>${borrador.seccion + 1} de ${SECCIONES_ACTIVAS.length}</strong> con <strong>${borrador.totalCorrectas} aciertos</strong>.</p>
+      <div class="confirma-acciones" style="margin-top:1.2rem;">
+        <button type="button" class="boton boton-volver" id="banner-nuevo">🔄 Empezar de nuevo</button>
+        <button type="button" class="boton boton-siguiente" id="banner-continuar">Continuar →</button>
+      </div>
+    </div>`;
+  document.querySelector('.pie').style.display = 'none';
+  document.getElementById('banner-continuar').addEventListener('click', () => {
+    aplicarBorrador(borrador);
+    document.querySelector('.pie').style.display = '';
+    renderSeccion();
+  });
+  document.getElementById('banner-nuevo').addEventListener('click', () => {
+    descartarBorrador();
+    document.querySelector('.pie').style.display = '';
+    renderSeccion();
+  });
+}
+
 // ---------- INIT ----------
 function init() {
   Teclado.init();
-  renderSeccion();
   enlazarBotonesPie();
+  const borrador = leerBorradorPendiente();
+  if (borrador) {
+    // Pintar primero la cabecera (pasos, barra) y luego el banner.
+    renderPasos();
+    actualizarBarra();
+    mostrarBannerContinuar(borrador);
+  } else {
+    renderSeccion();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);

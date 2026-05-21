@@ -93,3 +93,35 @@ test('limpiarHistorial: vacía el historial', () => {
   Almacen.limpiarHistorial();
   assert.equal(Almacen.getIntentos('ex1').length, 0);
 });
+
+// ---------- BORRADORES ----------
+
+test('borrador: null si no existe', () => {
+  assert.equal(Almacen.getBorrador('ex1::fijo'), null);
+});
+
+test('borrador: set + get devuelve los datos', () => {
+  Almacen.setBorrador('ex1::fijo', { seccion: 2, totalCorrectas: 8 });
+  const b = Almacen.getBorrador('ex1::fijo');
+  assert.equal(b.seccion, 2);
+  assert.equal(b.totalCorrectas, 8);
+  assert.ok(b.fecha, 'la fecha se rellena automáticamente');
+});
+
+test('borrador: borrar lo elimina', () => {
+  Almacen.setBorrador('ex1::fijo', { seccion: 1 });
+  Almacen.borrarBorrador('ex1::fijo');
+  assert.equal(Almacen.getBorrador('ex1::fijo'), null);
+});
+
+test('listarBorradores: solo los del examen indicado', () => {
+  Almacen.setBorrador('ex1::fijo', { seccion: 1 });
+  Almacen.setBorrador('ex1::aleatorio::42', { seccion: 2 });
+  Almacen.setBorrador('ex2::fijo', { seccion: 3 });
+  const e1 = Almacen.listarBorradores('ex1');
+  assert.equal(e1.length, 2);
+  const modos = e1.map(b => b.modo).sort();
+  assert.deepEqual(modos, ['aleatorio', 'fijo']);
+  const aleat = e1.find(b => b.modo === 'aleatorio');
+  assert.equal(aleat.semilla, '42');
+});
