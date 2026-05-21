@@ -37,7 +37,7 @@ body {
   background-attachment: fixed;
   min-height: 100vh;
   color: var(--texto);
-  padding-bottom: 7rem;
+  padding-bottom: 2rem;
   font-size: 18px;
   line-height: 1.5;
 }
@@ -371,19 +371,35 @@ body {
 }
 .coord-btn:disabled { cursor: not-allowed; opacity: 0.6; }
 
-/* ===== Pie y botones ===== */
+/* ===== Pie y botones — inline al final del scroll, NO fijo. ===== */
 .pie {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  padding: 1rem 1.5rem;
-  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.8rem;
+}
+
+.confirma-bloque {
+  background: white;
+  border-radius: 18px;
+  padding: 1.2rem 1.4rem;
+  box-shadow: var(--sombra);
+  border-left: 6px solid var(--naranja);
+  text-align: center;
+}
+.confirma-bloque p {
+  margin: 0 0 0.8rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.confirma-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
   justify-content: center;
-  gap: 1rem;
-  z-index: 40;
 }
 
 .boton {

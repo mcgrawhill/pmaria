@@ -577,13 +577,48 @@ function mostrarFinal() {
   if (pct >= 80) Confeti.lanzar(180);
 }
 
+// ---------- CONFIRMACIÓN ANTES DE COMPROBAR ----------
+// El botón "Comprobar" abre una mini-tarjeta inline pidiendo confirmar
+// para evitar pulsaciones por error mientras se hace scroll.
+
+function pedirConfirmacion(textoPregunta, accion) {
+  const pie = document.querySelector('.pie');
+  const original = pie.innerHTML;
+  pie.innerHTML = `
+    <div class="confirma-bloque">
+      <p>${textoPregunta}</p>
+      <div class="confirma-acciones">
+        <button type="button" class="boton boton-volver" id="confirma-no">Espera, déjame revisar</button>
+        <button type="button" class="boton boton-comprobar" id="confirma-si">Sí, comprobar ✓</button>
+      </div>
+    </div>`;
+  document.getElementById('confirma-no').addEventListener('click', () => {
+    pie.innerHTML = original;
+    enlazarBotonesPie();
+  });
+  document.getElementById('confirma-si').addEventListener('click', () => {
+    pie.innerHTML = original;
+    enlazarBotonesPie();
+    accion();
+  });
+}
+
+function enlazarBotonesPie() {
+  const btnComp = document.getElementById('btn-comprobar');
+  const btnSig = document.getElementById('btn-siguiente');
+  const btnFin = document.getElementById('btn-final');
+  if (btnComp) btnComp.addEventListener('click', () => {
+    pedirConfirmacion('¿Has terminado todas las preguntas de esta sección?', comprobarSeccion);
+  });
+  if (btnSig) btnSig.addEventListener('click', siguienteSeccion);
+  if (btnFin) btnFin.addEventListener('click', mostrarFinal);
+}
+
 // ---------- INIT ----------
 function init() {
   Teclado.init();
   renderSeccion();
-  document.getElementById('btn-comprobar').addEventListener('click', comprobarSeccion);
-  document.getElementById('btn-siguiente').addEventListener('click', siguienteSeccion);
-  document.getElementById('btn-final').addEventListener('click', mostrarFinal);
+  enlazarBotonesPie();
 }
 
 document.addEventListener('DOMContentLoaded', init);
