@@ -22,6 +22,10 @@
       <span class="estrella">⭐</span>
       <span id="puntos">0</span>
     </div>
+    <div class="cron-chip" id="cron-chip" hidden aria-label="Tiempo">
+      <span>⏱️</span>
+      <span id="cron-tiempo">0s</span>
+    </div>
   </header>
 
   <div class="barra-progreso" aria-hidden="true">
@@ -49,6 +53,7 @@
       <div class="modal-emoji" id="modal-emoji">🎉</div>
       <h2 id="modal-titulo">¡Genial!</h2>
       <p id="modal-mensaje" class="modal-mensaje"></p>
+      <p id="modal-tiempo" class="modal-tiempo" hidden></p>
       <div class="modal-stats">
         <div class="stat">
           <span class="stat-num" id="stat-correctas">0</span>
@@ -94,6 +99,7 @@
   <script src="../../_componentes/almacen.js"></script>
   <script src="../../_componentes/generador.js"></script>
   <script src="../../_componentes/modal.js"></script>
+  <script src="../../_componentes/cronometro.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -91,7 +91,21 @@ function empezar(modo) {
   estado.comprobado = false;
   estado.totalCorrectas = 0;
   document.getElementById('puntos').textContent = '0';
+  iniciarCronometro();
   renderEjercicios();
+}
+
+function iniciarCronometro() {
+  if (typeof Cronometro === 'undefined') return;
+  Cronometro.start(0);
+  const visible = (typeof Almacen !== 'undefined') && Almacen.getPrefs().cronometroVisible;
+  const chip = document.getElementById('cron-chip');
+  if (visible && chip) {
+    chip.hidden = false;
+    Cronometro.bindUI(document.getElementById('cron-tiempo'));
+  } else if (chip) {
+    chip.hidden = true;
+  }
 }
 
 function renderEjercicios() {
@@ -173,6 +187,7 @@ function pedirConfirmacion() {
 
 function comprobar() {
   estado.comprobado = true;
+  const tiempoMs = typeof Cronometro !== 'undefined' ? Cronometro.stop() : null;
   let aciertos = 0;
   const errores = [];
 
@@ -201,20 +216,29 @@ function comprobar() {
   document.getElementById('puntos').textContent = String(aciertos);
   document.getElementById('barra-fill').style.width = '100%';
 
+  // Calcular si es récord ANTES de guardar el intento nuevo.
+  const modoAlmacen = estado.modo === 'mezcla' ? 'fijo' : estado.modo;
+  const mejorPrevio = (typeof Almacen !== 'undefined')
+    ? Almacen.mejorTiempo(EXAMEN_ID, { modo: modoAlmacen })
+    : null;
+  const esRecord = tiempoMs && aciertos === estado.ejercicios.length
+    && (!mejorPrevio || tiempoMs < mejorPrevio.tiempoMs);
+
   // Guardar intento (usamos `modo` para distinguir tabla vs mezcla en el dashboard).
   if (typeof Almacen !== 'undefined') {
     Almacen.addIntento(EXAMEN_ID, {
       correctas: aciertos,
       total: estado.ejercicios.length,
-      modo: estado.modo === 'mezcla' ? 'fijo' : estado.modo,
+      modo: modoAlmacen,
       errores,
+      tiempoMs,
     });
   }
 
-  mostrarResumen(aciertos, estado.ejercicios.length);
+  mostrarResumen(aciertos, estado.ejercicios.length, tiempoMs, mejorPrevio, esRecord);
 }
 
-function mostrarResumen(aciertos, total) {
+function mostrarResumen(aciertos, total, tiempoMs, mejorPrevio, esRecord) {
   const pct = Math.round((aciertos / total) * 100);
   let emoji, titulo, color, mensaje;
   if (pct === 100) {
@@ -236,12 +260,25 @@ function mostrarResumen(aciertos, total) {
 
   if (pct >= 80) Confeti.lanzar(pct === 100 ? 180 : 100);
 
+  let tiempoHtml = '';
+  if (tiempoMs && typeof Cronometro !== 'undefined') {
+    const t = Cronometro.formato(tiempoMs);
+    if (esRecord) {
+      tiempoHtml = `<p class="cron-pill record">🚀 ¡Nuevo récord de tiempo! <strong>${t}</strong></p>`;
+    } else if (mejorPrevio) {
+      tiempoHtml = `<p class="cron-pill">⏱️ Has tardado <strong>${t}</strong>. Tu mejor: ${Cronometro.formato(mejorPrevio.tiempoMs)}</p>`;
+    } else {
+      tiempoHtml = `<p class="cron-pill">⏱️ Has tardado <strong>${t}</strong></p>`;
+    }
+  }
+
   Modal.mostrar({
     emoji,
     titulo,
     color,
     html: `<p>${mensaje}</p>
-           <p><strong>${aciertos} de ${total}</strong> correctas (${pct}%).</p>`,
+           <p><strong>${aciertos} de ${total}</strong> correctas (${pct}%).</p>
+           ${tiempoHtml}`,
     botones: [
       { texto: 'Revisar respuestas', clase: 'boton-volver' },
       { texto: 'Otra tabla 🔄', clase: 'boton-siguiente', accion: renderSelector },

@@ -94,6 +94,73 @@ test('limpiarHistorial: vacía el historial', () => {
   assert.equal(Almacen.getIntentos('ex1').length, 0);
 });
 
+// ---------- TIEMPO + RÉCORDS ----------
+
+test('addIntento: guarda tiempoMs si se pasa', () => {
+  Almacen.addIntento('ex1', { correctas: 5, total: 5, tiempoMs: 12000 });
+  const lista = Almacen.getIntentos('ex1');
+  assert.equal(lista[0].tiempoMs, 12000);
+});
+
+test('addIntento: si no se pasa tiempoMs queda null', () => {
+  Almacen.addIntento('ex1', { correctas: 5, total: 5 });
+  const lista = Almacen.getIntentos('ex1');
+  assert.equal(lista[0].tiempoMs, null);
+});
+
+test('mejorTiempo: devuelve el de menor tiempoMs entre intentos perfectos', () => {
+  Almacen.addIntento('ex1', { correctas: 5, total: 5, tiempoMs: 20000 });
+  Almacen.addIntento('ex1', { correctas: 5, total: 5, tiempoMs: 14000 });
+  Almacen.addIntento('ex1', { correctas: 5, total: 5, tiempoMs: 18000 });
+  const mejor = Almacen.mejorTiempo('ex1');
+  assert.equal(mejor.tiempoMs, 14000);
+});
+
+test('mejorTiempo: ignora intentos no perfectos por defecto', () => {
+  Almacen.addIntento('ex1', { correctas: 3, total: 5, tiempoMs: 5000 });
+  Almacen.addIntento('ex1', { correctas: 5, total: 5, tiempoMs: 30000 });
+  const mejor = Almacen.mejorTiempo('ex1');
+  assert.equal(mejor.tiempoMs, 30000);
+});
+
+test('mejorTiempo: con soloPerfectos=false cuenta cualquier intento', () => {
+  Almacen.addIntento('ex1', { correctas: 3, total: 5, tiempoMs: 5000 });
+  Almacen.addIntento('ex1', { correctas: 5, total: 5, tiempoMs: 30000 });
+  const mejor = Almacen.mejorTiempo('ex1', { soloPerfectos: false });
+  assert.equal(mejor.tiempoMs, 5000);
+});
+
+test('mejorTiempo: null si no hay intentos con tiempo', () => {
+  Almacen.addIntento('ex1', { correctas: 5, total: 5 });
+  assert.equal(Almacen.mejorTiempo('ex1'), null);
+});
+
+test('mejorTiempo: filtra por modo', () => {
+  Almacen.addIntento('ex1', { correctas: 5, total: 5, tiempoMs: 10000, modo: 'fijo' });
+  Almacen.addIntento('ex1', { correctas: 5, total: 5, tiempoMs: 5000, modo: 'aleatorio' });
+  assert.equal(Almacen.mejorTiempo('ex1', { modo: 'fijo' }).tiempoMs, 10000);
+  assert.equal(Almacen.mejorTiempo('ex1', { modo: 'aleatorio' }).tiempoMs, 5000);
+});
+
+// ---------- PREFERENCIAS ----------
+
+test('prefs: por defecto cronometroVisible=false', () => {
+  assert.equal(Almacen.getPrefs().cronometroVisible, false);
+});
+
+test('prefs: setPrefs persiste el valor', () => {
+  Almacen.setPrefs({ cronometroVisible: true });
+  assert.equal(Almacen.getPrefs().cronometroVisible, true);
+});
+
+test('prefs: setPrefs fusiona en vez de reemplazar', () => {
+  Almacen.setPrefs({ cronometroVisible: true });
+  Almacen.setPrefs({ otraCosa: 42 });
+  const p = Almacen.getPrefs();
+  assert.equal(p.cronometroVisible, true);
+  assert.equal(p.otraCosa, 42);
+});
+
 // ---------- BORRADORES ----------
 
 test('borrador: null si no existe', () => {

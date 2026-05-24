@@ -142,6 +142,36 @@ body.dashboard {
 }
 .modo-pill.fijo { background: #e3f0ff; color: #0984e3; }
 .modo-pill.aleatorio { background: #efeaff; color: #6c5ce7; }
+.modo-pill.tabla { background: #fff4d6; color: #b07b00; }
+
+/* Toggle de preferencia */
+.pref-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  background: #f5f6fa;
+  border-radius: 14px;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  margin-top: 0.4rem;
+}
+.pref-toggle input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin-top: 0.15rem;
+  accent-color: #0984e3;
+  cursor: pointer;
+}
+.pref-toggle span {
+  display: block;
+  line-height: 1.4;
+}
+.pref-toggle small {
+  display: block;
+  color: #555;
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+}
 
 /* ----- Chips por sección ----- */
 .por-seccion {

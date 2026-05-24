@@ -644,6 +644,15 @@ function mostrarFinal() {
   const total = estado.totalEjercicios;
   const correctas = estado.totalCorrectas;
   const pct = Math.round((correctas / total) * 100);
+  const modoActual = MODO_ALEATORIO ? 'aleatorio' : 'fijo';
+
+  // Parar cronómetro y calcular si es récord.
+  const tiempoMs = typeof Cronometro !== 'undefined' ? Cronometro.stop() : null;
+  const mejorPrevio = (!MODO_REPASO && typeof Almacen !== 'undefined')
+    ? Almacen.mejorTiempo(EXAMEN_ID, { modo: modoActual })
+    : null;
+  const esRecord = tiempoMs && correctas === total
+    && (!mejorPrevio || tiempoMs < mejorPrevio.tiempoMs);
 
   // Guardar el intento (excepto en modo repaso, que es una sub-tirada del intento previo).
   // Modo fijo y aleatorio se guardan ambos, distinguidos por el campo `modo`.
@@ -653,7 +662,8 @@ function mostrarFinal() {
       total,
       errores: estado.erroresPorId,
       porSeccion: estado.resumenPorSeccion,
-      modo: MODO_ALEATORIO ? 'aleatorio' : 'fijo',
+      modo: modoActual,
+      tiempoMs,
     });
     descartarBorrador();
   }
@@ -671,6 +681,23 @@ function mostrarFinal() {
   document.getElementById('stat-correctas').textContent = correctas;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-porcentaje').textContent = pct + '%';
+
+  // Tiempo + récord (solo si el cronómetro funcionó).
+  const elemTiempo = document.getElementById('modal-tiempo');
+  if (tiempoMs && elemTiempo) {
+    const tiempoTxt = Cronometro.formato(tiempoMs);
+    if (esRecord) {
+      elemTiempo.classList.add('record');
+      elemTiempo.innerHTML = `🚀 ¡Nuevo récord de tiempo! <strong>${tiempoTxt}</strong>`;
+    } else if (mejorPrevio) {
+      elemTiempo.classList.remove('record');
+      elemTiempo.innerHTML = `⏱️ Has tardado <strong>${tiempoTxt}</strong>. Tu mejor: ${Cronometro.formato(mejorPrevio.tiempoMs)}`;
+    } else {
+      elemTiempo.classList.remove('record');
+      elemTiempo.innerHTML = `⏱️ Has tardado <strong>${tiempoTxt}</strong>`;
+    }
+    elemTiempo.hidden = false;
+  }
 
   // Botón de repaso de errores si hay fallos y no estamos ya repasando.
   const btnRepaso = document.getElementById('boton-repaso');
@@ -735,6 +762,7 @@ function guardarBorrador() {
     resultadoSeccion: estado.resultadoSeccion,
     resumenPorSeccion: estado.resumenPorSeccion,
     erroresPorId: estado.erroresPorId,
+    tiempoAcumuladoMs: typeof Cronometro !== 'undefined' ? Cronometro.getMs() : 0,
   });
 }
 
@@ -761,6 +789,7 @@ function aplicarBorrador(b) {
   estado.resultadoSeccion = b.resultadoSeccion || {};
   estado.resumenPorSeccion = b.resumenPorSeccion || {};
   estado.erroresPorId = b.erroresPorId || [];
+  estado.tiempoAcumuladoMs = b.tiempoAcumuladoMs || 0;
   document.getElementById('puntos').textContent = estado.totalCorrectas;
 }
 
@@ -784,13 +813,29 @@ function mostrarBannerContinuar(borrador) {
   document.getElementById('banner-continuar').addEventListener('click', () => {
     aplicarBorrador(borrador);
     document.querySelector('.pie').style.display = '';
+    iniciarCronometro(estado.tiempoAcumuladoMs || 0);
     renderSeccion();
   });
   document.getElementById('banner-nuevo').addEventListener('click', () => {
     descartarBorrador();
     document.querySelector('.pie').style.display = '';
+    iniciarCronometro(0);
     renderSeccion();
   });
+}
+
+// ---------- CRONÓMETRO ----------
+// Silencioso por defecto; visible en cabecera si el padre lo activó en el dashboard.
+// Se persiste el acumulado en el borrador para no perder tiempo entre sesiones.
+function iniciarCronometro(acumuladoMs = 0) {
+  if (typeof Cronometro === 'undefined') return;
+  Cronometro.start(acumuladoMs);
+  const visible = (typeof Almacen !== 'undefined') && Almacen.getPrefs().cronometroVisible;
+  const chip = document.getElementById('cron-chip');
+  if (visible && chip) {
+    chip.hidden = false;
+    Cronometro.bindUI(document.getElementById('cron-tiempo'));
+  }
 }
 
 // ---------- INIT ----------
@@ -804,6 +849,7 @@ function init() {
     actualizarBarra();
     mostrarBannerContinuar(borrador);
   } else {
+    iniciarCronometro(0);
     renderSeccion();
   }
 }

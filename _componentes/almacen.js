@@ -10,6 +10,17 @@ const Almacen = {
     historial: 'alana.historial',
     racha: 'alana.racha',
     borradores: 'alana.borradores',
+    prefs: 'alana.prefs',
+  },
+
+  // ---------- PREFERENCIAS GLOBALES ----------
+  // Por ejemplo: cronometroVisible (mostrar tiempo durante el examen).
+  getPrefs() {
+    return this._leer(this.CLAVES.prefs, { cronometroVisible: false });
+  },
+
+  setPrefs(prefs) {
+    this._guardar(this.CLAVES.prefs, { ...this.getPrefs(), ...prefs });
   },
 
   // ---------- PERFIL ----------
@@ -56,9 +67,22 @@ const Almacen = {
       modo: intento.modo || 'fijo',
       errores: intento.errores || [],
       porSeccion: intento.porSeccion || null,
+      tiempoMs: typeof intento.tiempoMs === 'number' ? intento.tiempoMs : null,
     });
     this._guardar(this.CLAVES.historial, historial);
     this._tocarRacha();
+  },
+
+  // Devuelve el intento con menor tiempoMs entre los que cumplen ciertos criterios.
+  // Por defecto, solo cuenta intentos perfectos (correctas === total) para que
+  // comparar tiempos tenga sentido. Pasa `soloPerfectos: false` para todos.
+  mejorTiempo(examenId, opts = {}) {
+    const { modo, soloPerfectos = true } = opts;
+    const lista = this.getIntentos(examenId, { modo });
+    const elegibles = lista.filter(it => typeof it.tiempoMs === 'number' && it.tiempoMs > 0
+      && (!soloPerfectos || it.correctas === it.total));
+    if (!elegibles.length) return null;
+    return elegibles.reduce((mejor, it) => (mejor && mejor.tiempoMs <= it.tiempoMs) ? mejor : it, null);
   },
 
   limpiarHistorial() {

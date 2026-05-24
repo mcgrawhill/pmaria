@@ -15,6 +15,8 @@
   const totalPreguntas = todosIntentos.reduce((s, i) => s + i.total, 0);
   const pctMedio = totalPreguntas ? Math.round((totalCorrectas / totalPreguntas) * 100) : 0;
 
+  const prefs = Almacen.getPrefs();
+
   main.innerHTML = `
     <section class="dash-tarjeta">
       <h2>📊 Resumen</h2>
@@ -34,10 +36,25 @@
       </div>
       ${renderDesgloseGlobal(todosIntentos)}
     </section>
+    <section class="dash-tarjeta">
+      <h2>⚙️ Preferencias</h2>
+      <label class="pref-toggle">
+        <input type="checkbox" id="pref-cron-visible" ${prefs.cronometroVisible ? 'checked' : ''}>
+        <span>
+          <strong>Mostrar cronómetro durante el examen</strong>
+          <small>Si está activado, aparece un ⏱️ en la cabecera con el tiempo en vivo.
+          Si no, el tiempo se mide en silencio y solo se muestra al final.</small>
+        </span>
+      </label>
+    </section>
     ${renderExamenes()}
     <div class="acciones">
       <button type="button" class="boton-peligro" id="btn-limpiar">🗑️ Borrar historial</button>
     </div>`;
+
+  document.getElementById('pref-cron-visible').addEventListener('change', (e) => {
+    Almacen.setPrefs({ cronometroVisible: e.target.checked });
+  });
 
   document.getElementById('btn-limpiar').addEventListener('click', () => {
     if (confirm('¿Borrar todo el historial de intentos? Esta acción no se puede deshacer.')) {
@@ -80,10 +97,15 @@
       const intentos = Almacen.getIntentos(e.id);
       const mejorFijo = Almacen.mejorIntento(e.id, { modo: 'fijo' });
       const estrellas = mejorFijo ? Estrellas.calcular(mejorFijo.correctas, mejorFijo.total) : 0;
+      const mejorTiempoFijo = Almacen.mejorTiempo(e.id, { modo: 'fijo' });
 
       const cuerpo = intentos.length
         ? renderTabla(intentos)
         : '<div class="dash-vacio">Aún no ha hecho este examen.</div>';
+
+      const recordTxt = mejorTiempoFijo
+        ? `<p style="color:#0984e3;font-size:0.9rem;margin-top:0.3rem;">⏱️ Mejor tiempo (intento perfecto): <strong>${formatoMs(mejorTiempoFijo.tiempoMs)}</strong></p>`
+        : '';
 
       return `
         <section class="dash-tarjeta">
@@ -92,36 +114,54 @@
           ${mejorFijo
             ? `<p style="color:#555;font-size:0.9rem;margin-top:0.3rem;">Las ⭐ miden el mejor intento del modo fijo.</p>`
             : ''}
+          ${recordTxt}
           ${cuerpo}
         </section>`;
     }).join('');
+  }
+
+  // Formato corto reutilizable para el dashboard (sin depender de Cronometro).
+  function formatoMs(ms) {
+    if (!ms) return '–';
+    const seg = Math.max(0, Math.round(ms / 1000));
+    const m = Math.floor(seg / 60);
+    const s = seg % 60;
+    if (m === 0) return `${s}s`;
+    return `${m}m ${String(s).padStart(2, '0')}s`;
   }
 
   function renderTabla(intentos) {
     return `
       <table class="intentos-tabla">
         <thead>
-          <tr><th>Fecha</th><th>Modo</th><th>Aciertos</th><th>Nota</th><th>Por sección</th></tr>
+          <tr><th>Fecha</th><th>Modo</th><th>Aciertos</th><th>Nota</th><th>Tiempo</th><th>Por sección</th></tr>
         </thead>
         <tbody>
           ${intentos.map(it => {
             const pct = Math.round((it.correctas / it.total) * 100);
             const clsPct = pct >= 80 ? 'alto' : pct >= 50 ? 'medio' : 'bajo';
-            const modo = it.modo || 'fijo';
-            const badge = modo === 'aleatorio'
-              ? '<span class="modo-pill aleatorio">🎲 Aleatorio</span>'
-              : '<span class="modo-pill fijo">📋 Fijo</span>';
             return `
               <tr>
                 <td>${formatearFecha(it.fecha)}</td>
-                <td>${badge}</td>
+                <td>${renderModoBadge(it.modo)}</td>
                 <td>${it.correctas} / ${it.total}</td>
                 <td><span class="pct-pill ${clsPct}">${pct}%</span></td>
+                <td>${it.tiempoMs ? formatoMs(it.tiempoMs) : '<span style="color:#999;">—</span>'}</td>
                 <td>${renderPorSeccion(it.porSeccion)}</td>
               </tr>`;
           }).join('')}
         </tbody>
       </table>`;
+  }
+
+  function renderModoBadge(modo) {
+    const m = modo || 'fijo';
+    if (m === 'aleatorio') return '<span class="modo-pill aleatorio">🎲 Aleatorio</span>';
+    if (m.startsWith('tabla-')) {
+      const n = m.split('-')[1];
+      return `<span class="modo-pill tabla">✖️ Tabla del ${n}</span>`;
+    }
+    return '<span class="modo-pill fijo">📋 Fijo</span>';
   }
 
   function renderPorSeccion(porSeccion) {

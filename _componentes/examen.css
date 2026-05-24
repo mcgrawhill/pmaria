@@ -92,6 +92,21 @@ body {
 }
 .estrella { font-size: 1.3rem; }
 
+.cron-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #e3f0ff;
+  color: #0984e3;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+.cron-chip[hidden] { display: none !important; }
+
 /* ===== Barra de progreso ===== */
 .barra-progreso {
   height: 8px;
@@ -457,7 +472,19 @@ body {
 
 .modal-emoji { font-size: 4.5rem; line-height: 1; margin-bottom: 0.5rem; }
 .modal-contenido h2 { font-size: 2rem; margin-bottom: 0.5rem; }
-.modal-mensaje { color: #555; margin-bottom: 1.5rem; }
+.modal-mensaje { color: #555; margin-bottom: 0.8rem; }
+.modal-tiempo {
+  background: #e3f0ff;
+  color: #0984e3;
+  border-radius: 14px;
+  padding: 0.5rem 0.9rem;
+  margin: 0 auto 1.2rem;
+  font-weight: 600;
+  display: inline-block;
+  font-size: 0.95rem;
+}
+.modal-tiempo.record { background: #fff4d6; color: #b07b00; }
+.modal-tiempo[hidden] { display: none !important; }
 .modal-stats { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1.5rem; }
 .stat { background: var(--gris-claro); border-radius: 16px; padding: 1rem; flex: 1; }
 .stat-num { display: block; font-size: 1.8rem; font-weight: 700; color: var(--azul-osc); }
@@ -484,6 +511,19 @@ body {
   min-width: 140px;
   margin: 0;
 }
+
+/* Pill informativa de tiempo dentro del cuerpo de la modal */
+.cron-pill {
+  background: #e3f0ff;
+  color: #0984e3;
+  border-radius: 14px;
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 0.3rem !important;
+  font-size: 0.95rem;
+}
+.cron-pill.record { background: #fff4d6; color: #b07b00; }
 
 #confeti {
   position: fixed;
