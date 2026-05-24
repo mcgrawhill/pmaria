@@ -277,6 +277,7 @@ body {
 .figura-pequena { width: 130px; }
 .figura-media { width: 180px; }
 .figura-grande { width: 260px; }
+.figura-mixta { max-width: 100%; width: auto; max-height: 130px; }
 
 .bolsa {
   display: flex;
@@ -462,6 +463,27 @@ body {
 .stat-num { display: block; font-size: 1.8rem; font-weight: 700; color: var(--azul-osc); }
 .stat-label { font-size: 0.85rem; color: #555; }
 .modal .boton { display: inline-flex; margin: 0.3rem; }
+
+/* Variante "info" (confirmación, resumen de sección, etc.) */
+.modal-info .modal-cuerpo {
+  color: #555;
+  margin-bottom: 1.2rem;
+  font-size: 1.05rem;
+}
+.modal-info .modal-cuerpo p { margin-bottom: 0.5rem; }
+.modal-info .modal-cuerpo p:last-child { margin-bottom: 0; }
+.modal-info .modal-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+.modal-info .modal-botones .boton {
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 140px;
+  margin: 0;
+}
 
 #confeti {
   position: fixed;
