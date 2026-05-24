@@ -13,6 +13,18 @@ function displayFraccion(id, maxNum = 1, maxDen = 1) {
   </span>`;
 }
 
+function displayMixto(id, maxEntero = 1, maxNum = 1, maxDen = 1) {
+  return `<span class="mixto-input">
+    <button type="button" class="display-num vacio" data-id="${id}" data-parte="entero" data-valor="" data-max="${maxEntero}" aria-label="Parte entera">–</button>
+    <span class="mixto-y">y</span>
+    <span class="fraccion-input">
+      <button type="button" class="display-num vacio" data-id="${id}" data-parte="num" data-valor="" data-max="${maxNum}" aria-label="Numerador">–</button>
+      <span class="barra-fraccion"></span>
+      <button type="button" class="display-num vacio" data-id="${id}" data-parte="den" data-valor="" data-max="${maxDen}" aria-label="Denominador">–</button>
+    </span>
+  </span>`;
+}
+
 function displayNumero(id, max = 2, label = 'Respuesta') {
   return `<button type="button" class="display-num ancha vacio" data-id="${id}" data-valor="" data-max="${max}" aria-label="${label}">–</button>`;
 }
@@ -64,6 +76,19 @@ const SECCIONES = [
       { id: 'f3', tipo: 'fraccion', num: 4, den: 6 },
       { id: 'f4', tipo: 'fraccion', num: 5, den: 8 },
       { id: 'f5', tipo: 'fraccion', num: 3, den: 10, color: '#fd79a8' },
+    ],
+  },
+  {
+    id: 'mixtos',
+    emoji: '🥧',
+    titulo: 'Números mixtos',
+    descripcion: 'Cuenta las pizzas enteras y la parte coloreada de la última. Escribe el número mixto (entero y fracción).',
+    ejercicios: [
+      { id: 'm1', tipo: 'mixto', entero: 1, num: 1, den: 2 },
+      { id: 'm2', tipo: 'mixto', entero: 2, num: 3, den: 4, color: '#a29bfe' },
+      { id: 'm3', tipo: 'mixto', entero: 1, num: 2, den: 3, color: '#55efc4' },
+      { id: 'm4', tipo: 'mixto', entero: 3, num: 1, den: 4, color: '#fd79a8' },
+      { id: 'm5', tipo: 'mixto', entero: 2, num: 5, den: 6, color: '#74b9ff' },
     ],
   },
   {
@@ -307,6 +332,15 @@ function renderEjercicio(ej, num) {
           ${displayFraccion(ej.id, String(ej.num).length, String(ej.den).length)}
         </div>
       </div>`;
+  } else if (ej.tipo === 'mixto') {
+    contenido = `
+      <div class="ejercicio-contenido">
+        ${Figuras.fraccionMixta(ej.entero, ej.num, ej.den, ej.color || '#fd9644')}
+        <div>
+          <p style="margin-bottom:0.4rem;">Pulsa para escribir el número mixto:</p>
+          ${displayMixto(ej.id, String(ej.entero).length, String(ej.num).length, String(ej.den).length)}
+        </div>
+      </div>`;
   } else if (ej.tipo === 'comparar') {
     contenido = `
       <div class="ejercicio-contenido">
@@ -399,7 +433,7 @@ function conectarEventos() {
       Teclado.abrir(disp, {
         maxDigitos: parseInt(disp.dataset.max, 10) || 1,
         onCambio: (valor) => {
-          if (parte === 'num' || parte === 'den') {
+          if (parte === 'num' || parte === 'den' || parte === 'entero') {
             if (!estado.respuestas[id]) estado.respuestas[id] = {};
             estado.respuestas[id][parte] = valor;
           } else {
@@ -456,6 +490,20 @@ function comprobarSeccion() {
       const displays = div.querySelectorAll('.display-num');
       displays.forEach(d => {
         d.disabled = true;
+        if (d.dataset.parte === 'num') d.classList.add(numOk ? 'ok' : 'ko');
+        if (d.dataset.parte === 'den') d.classList.add(denOk ? 'ok' : 'ko');
+      });
+    } else if (ej.tipo === 'mixto') {
+      const r = estado.respuestas[ej.id] || {};
+      const entOk = parseInt(r.entero, 10) === ej.entero;
+      const numOk = parseInt(r.num, 10) === ej.num;
+      const denOk = parseInt(r.den, 10) === ej.den;
+      correcto = entOk && numOk && denOk;
+      textoCorrecto = `${ej.entero} y ${ej.num}/${ej.den}`;
+      const displays = div.querySelectorAll('.display-num');
+      displays.forEach(d => {
+        d.disabled = true;
+        if (d.dataset.parte === 'entero') d.classList.add(entOk ? 'ok' : 'ko');
         if (d.dataset.parte === 'num') d.classList.add(numOk ? 'ok' : 'ko');
         if (d.dataset.parte === 'den') d.classList.add(denOk ? 'ok' : 'ko');
       });
@@ -528,17 +576,40 @@ function comprobarSeccion() {
     document.getElementById('btn-final').hidden = false;
   }
 
-  // Resumen de sección
-  const main = document.getElementById('examen');
-  const resumen = document.createElement('div');
-  resumen.className = 'ejercicio';
-  resumen.style.borderLeftColor = aciertos === sec.ejercicios.length ? 'var(--verde-osc)' : 'var(--naranja)';
-  resumen.innerHTML = `
-    <h3 style="font-size:1.3rem;margin-bottom:0.4rem;">${aciertos === sec.ejercicios.length ? '🌟 ¡Perfecto!' : '👍 Buen trabajo'}</h3>
-    <p>Has acertado <strong>${aciertos} de ${sec.ejercicios.length}</strong> ejercicios en esta sección.</p>`;
-  main.appendChild(resumen);
-
   if (aciertos === sec.ejercicios.length) Confeti.lanzar(60);
+
+  // Resumen de sección en modal centrada (mejor que aparecer al final del scroll).
+  mostrarResumenSeccion(aciertos, sec.ejercicios.length);
+}
+
+function mostrarResumenSeccion(aciertos, total) {
+  const perfecto = aciertos === total;
+  const ultimaSec = estado.seccion >= SECCIONES_ACTIVAS.length - 1;
+
+  let emoji, titulo, color;
+  if (perfecto) {
+    emoji = '🌟'; titulo = '¡Perfecto!'; color = 'var(--verde-osc)';
+  } else if (aciertos / total >= 0.5) {
+    emoji = '👍'; titulo = '¡Buen trabajo!'; color = 'var(--naranja)';
+  } else {
+    emoji = '💪'; titulo = '¡Sigue practicando!'; color = 'var(--naranja)';
+  }
+
+  const avanzar = ultimaSec
+    ? { texto: 'Ver mi resultado 🎉', clase: 'boton-final', accion: mostrarFinal }
+    : { texto: 'Siguiente sección →', clase: 'boton-siguiente', accion: siguienteSeccion };
+
+  Modal.mostrar({
+    emoji,
+    titulo,
+    color,
+    html: `<p>Has acertado <strong>${aciertos} de ${total}</strong> ejercicios en esta sección.</p>
+           ${aciertos < total ? '<p>Puedes revisar tus respuestas antes de seguir.</p>' : ''}`,
+    botones: [
+      { texto: 'Revisar respuestas', clase: 'boton-volver' },
+      avanzar,
+    ],
+  });
 }
 
 function marcarOpciones(div, id, valorCorrecto) {
@@ -623,29 +694,18 @@ function mostrarFinal() {
   if (pct >= 80) Confeti.lanzar(180);
 }
 
-// ---------- CONFIRMACIÓN ANTES DE COMPROBAR ----------
-// El botón "Comprobar" abre una mini-tarjeta inline pidiendo confirmar
-// para evitar pulsaciones por error mientras se hace scroll.
+// ---------- CONFIRMACIÓN Y RESUMEN — MODAL CENTRADA ----------
 
 function pedirConfirmacion(textoPregunta, accion) {
-  const pie = document.querySelector('.pie');
-  const original = pie.innerHTML;
-  pie.innerHTML = `
-    <div class="confirma-bloque">
-      <p>${textoPregunta}</p>
-      <div class="confirma-acciones">
-        <button type="button" class="boton boton-volver" id="confirma-no">Espera, déjame revisar</button>
-        <button type="button" class="boton boton-comprobar" id="confirma-si">Sí, comprobar ✓</button>
-      </div>
-    </div>`;
-  document.getElementById('confirma-no').addEventListener('click', () => {
-    pie.innerHTML = original;
-    enlazarBotonesPie();
-  });
-  document.getElementById('confirma-si').addEventListener('click', () => {
-    pie.innerHTML = original;
-    enlazarBotonesPie();
-    accion();
+  Modal.mostrar({
+    emoji: '🤔',
+    titulo: '¿Has terminado?',
+    html: `<p>${textoPregunta}</p>`,
+    color: 'var(--naranja)',
+    botones: [
+      { texto: 'Déjame revisar', clase: 'boton-volver' },
+      { texto: 'Sí, comprobar ✓', clase: 'boton-comprobar', accion },
+    ],
   });
 }
 

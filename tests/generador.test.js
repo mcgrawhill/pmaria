@@ -35,6 +35,18 @@ test('fraccion: 1 ≤ num < den ≤ 10', () => {
   }
 });
 
+test('mixto: entero ∈ [1,4], 1 ≤ num < den ≤ 8', () => {
+  const rng = Generador.prng(SEMILLA);
+  for (let i = 0; i < 200; i++) {
+    const ej = Generador.mixto(rng, i);
+    assert.equal(ej.tipo, 'mixto');
+    assert.ok(ej.entero >= 1 && ej.entero <= 4, `entero=${ej.entero}`);
+    assert.ok(ej.num >= 1, `num=${ej.num}`);
+    assert.ok(ej.num < ej.den, `num=${ej.num}, den=${ej.den}`);
+    assert.ok(ej.den >= 2 && ej.den <= 8, `den=${ej.den}`);
+  }
+});
+
 test('comparar: ambas fracciones propias y comparable', () => {
   const rng = Generador.prng(SEMILLA);
   for (let i = 0; i < 200; i++) {
@@ -165,4 +177,15 @@ test('crearExamen: con simetría curada incluida', () => {
   const simetriaFake = { id: 'simetria', titulo: 'Simetría', ejercicios: [{ id: 's1' }] };
   const ex = Generador.crearExamen({ semilla: 1, simetriaCurada: simetriaFake });
   assert.ok(ex.find(s => s.id === 'simetria'));
+});
+
+test('crearExamen: incluye sección de mixtos con ejercicios bien formados', () => {
+  const ex = Generador.crearExamen({ semilla: 1 });
+  const sec = ex.find(s => s.id === 'mixtos');
+  assert.ok(sec, 'la sección mixtos debe estar presente');
+  assert.ok(sec.ejercicios.length > 0);
+  sec.ejercicios.forEach(ej => {
+    assert.equal(ej.tipo, 'mixto');
+    assert.ok(ej.entero >= 1 && ej.num >= 1 && ej.num < ej.den);
+  });
 });

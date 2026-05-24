@@ -38,6 +38,16 @@ const Generador = (function () {
     return { id: `f${idx}`, tipo: 'fraccion', num, den, color: elegir(rng, colores) };
   }
 
+  function mixto(rng, idx) {
+    // Limitamos den a 8 para que las pizzas se vean cómodas en pantalla
+    // y entero a 4 para no abusar del ancho horizontal.
+    const entero = ent(rng, 1, 4);
+    const den = ent(rng, 2, 8);
+    const num = ent(rng, 1, den - 1);
+    const colores = ['#fd9644', '#a29bfe', '#fd79a8', '#74b9ff', '#55efc4', '#ffeaa7'];
+    return { id: `m${idx}`, tipo: 'mixto', entero, num, den, color: elegir(rng, colores) };
+  }
+
   function comparar(rng, idx) {
     // Dos fracciones independientes, denominadores hasta 10.
     const a = [ent(rng, 1, 9), ent(rng, 2, 10)];
@@ -194,6 +204,11 @@ const Generador = (function () {
         ejercicios: repetir(N.fracciones || 5, i => fraccion(rng, i + 1)),
       },
       {
+        id: 'mixtos', emoji: '🥧', titulo: 'Números mixtos',
+        descripcion: 'Cuenta las pizzas enteras y la parte coloreada de la última. Escribe el número mixto (entero y fracción).',
+        ejercicios: repetir(N.mixtos || 4, i => mixto(rng, i + 1)),
+      },
+      {
         id: 'comparar', emoji: '⚖️', titulo: 'Comparo fracciones',
         descripcion: 'Pulsa el símbolo correcto: mayor, menor o igual.',
         ejercicios: repetir(N.comparar || 6, i => comparar(rng, i + 1)),
@@ -237,6 +252,7 @@ const Generador = (function () {
   return {
     prng,
     fraccion,
+    mixto,
     comparar,
     area,
     probabilidad,

@@ -28,6 +28,38 @@ const Figuras = {
     </svg>`;
   },
 
+  // Número mixto: N pizzas enteras + 1 con `num/den` coloreado.
+  // Todas las pizzas se dividen visualmente en `den` sectores para que sea
+  // fácil "ver" la equivalencia entero ↔ den/den.
+  fraccionMixta(entero, num, den, color = '#fd9644') {
+    const r = 46;
+    const cy = 56;
+    const total = entero + 1;
+    const espacio = 14;
+    const padX = 8;
+    const ancho = padX * 2 + total * 2 * r + (total - 1) * espacio;
+    const alto = 116;
+    let pizzas = '';
+    for (let p = 0; p < total; p++) {
+      const cx = padX + r + p * (2 * r + espacio);
+      const coloreados = p < entero ? den : num;
+      for (let i = 0; i < den; i++) {
+        const a0 = (i / den) * 2 * Math.PI - Math.PI / 2;
+        const a1 = ((i + 1) / den) * 2 * Math.PI - Math.PI / 2;
+        const x0 = (cx + r * Math.cos(a0)).toFixed(2);
+        const y0 = (cy + r * Math.sin(a0)).toFixed(2);
+        const x1 = (cx + r * Math.cos(a1)).toFixed(2);
+        const y1 = (cy + r * Math.sin(a1)).toFixed(2);
+        const grande = (1 / den) > 0.5 ? 1 : 0;
+        const fill = i < coloreados ? color : '#ffffff';
+        pizzas += `<path d="M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${grande} 1 ${x1} ${y1} Z" fill="${fill}" stroke="#2d3436" stroke-width="2"/>`;
+      }
+    }
+    return `<svg class="figura figura-mixta" viewBox="0 0 ${ancho} ${alto}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Número mixto ${entero} y ${num} de ${den}">
+      ${pizzas}
+    </svg>`;
+  },
+
   // Rectángulo dividido en partes verticales (barra).
   fraccionBarra(num, den, color = '#a29bfe') {
     const ancho = 240, alto = 80;
