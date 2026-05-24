@@ -9,4 +9,11 @@ const EXAMENES = [
     descripcion: 'Fracciones, áreas, simetría, probabilidad y plano cartesiano',
     url: 'examen-01-repaso-general/index.html',
   },
+  {
+    id: 'examen-02-tablas-multiplicar',
+    emoji: '✖️',
+    titulo: 'Tablas de multiplicar',
+    descripcion: 'Practica las tablas del 1 al 10. Elige una o todas mezcladas.',
+    url: 'examen-02-tablas-multiplicar/index.html',
+  },
 ];

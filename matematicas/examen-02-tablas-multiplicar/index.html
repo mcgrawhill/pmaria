@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tablas de multiplicar | Matemáticas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../_componentes/examen.css" />
+  <link rel="stylesheet" href="../../_componentes/teclado.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="cabecera">
+    <a class="volver" href="../index.html" aria-label="Volver a matemáticas">←</a>
+    <div class="titulo-bloque">
+      <h1 id="seccion-titulo">✖️ Tablas de multiplicar</h1>
+      <p id="seccion-subtitulo" class="subtitulo">Elige una tabla para repasar</p>
+    </div>
+    <div class="puntuacion" aria-label="Puntuación actual">
+      <span class="estrella">⭐</span>
+      <span id="puntos">0</span>
+    </div>
+  </header>
+
+  <div class="barra-progreso" aria-hidden="true">
+    <div id="barra-fill" class="barra-fill"></div>
+  </div>
+
+  <main id="examen" class="examen"></main>
+
+  <footer class="pie" id="pie" hidden>
+    <button id="btn-comprobar" class="boton boton-comprobar" type="button">
+      Comprobar respuestas ✓
+    </button>
+  </footer>
+
+  <canvas id="confeti" aria-hidden="true"></canvas>
+
+  <div id="teclado" class="teclado" hidden aria-label="Teclado numérico">
+    <div class="teclado-teclas">
+      <button type="button" class="tecla" data-tecla="1">1</button>
+      <button type="button" class="tecla" data-tecla="2">2</button>
+      <button type="button" class="tecla" data-tecla="3">3</button>
+      <button type="button" class="tecla" data-tecla="4">4</button>
+      <button type="button" class="tecla" data-tecla="5">5</button>
+      <button type="button" class="tecla" data-tecla="6">6</button>
+      <button type="button" class="tecla" data-tecla="7">7</button>
+      <button type="button" class="tecla" data-tecla="8">8</button>
+      <button type="button" class="tecla" data-tecla="9">9</button>
+      <button type="button" class="tecla tecla-cero" data-tecla="0">0</button>
+      <button type="button" class="tecla tecla-accion" data-tecla="borrar" aria-label="Borrar">⌫</button>
+    </div>
+  </div>
+
+  <script src="../../_componentes/teclado.js"></script>
+  <script src="../../_componentes/confeti.js"></script>
+  <script src="../../_componentes/almacen.js"></script>
+  <script src="../../_componentes/modal.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

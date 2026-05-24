@@ -2,7 +2,7 @@
 // Estrategia: stale-while-revalidate (responde cacheado y refresca en segundo plano).
 // Subir CACHE_NAME al cambiar este archivo para invalidar el cache anterior.
 
-const CACHE_NAME = 'alana-v8';
+const CACHE_NAME = 'alana-v9';
 const ARCHIVOS_BASE = [
   './',
   'index.html',
@@ -27,6 +27,9 @@ const ARCHIVOS_BASE = [
   'matematicas/examen-01-repaso-general/index.html',
   'matematicas/examen-01-repaso-general/script.js',
   'matematicas/examen-01-repaso-general/style.css',
+  'matematicas/examen-02-tablas-multiplicar/index.html',
+  'matematicas/examen-02-tablas-multiplicar/script.js',
+  'matematicas/examen-02-tablas-multiplicar/style.css',
   'dashboard.html',
 ];
 

@@ -1,0 +1,91 @@
+/* Overrides específicos de tablas de multiplicar.
+   Los estilos base están en ../../_componentes/examen.css y teclado.css */
+
+/* Pantalla selector de tabla */
+.selector-tablas {
+  background: white;
+  border-radius: var(--radio);
+  padding: 1.5rem;
+  box-shadow: var(--sombra);
+  border-left: 8px solid var(--azul);
+}
+.selector-tablas h2 {
+  font-size: clamp(1.3rem, 4vw, 1.6rem);
+  margin-bottom: 0.4rem;
+}
+.selector-tablas p {
+  color: #555;
+  margin-bottom: 1.2rem;
+}
+
+.tabla-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.6rem;
+}
+
+.tabla-btn {
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: var(--gris-claro);
+  border: 3px solid transparent;
+  border-radius: 16px;
+  padding: 1.1rem 0.6rem;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+  color: var(--texto);
+  min-height: 70px;
+}
+.tabla-btn:hover { background: #e9ecf1; border-color: var(--azul); }
+.tabla-btn:active { transform: scale(0.97); }
+
+.tabla-btn.destacado {
+  background: var(--morado);
+  color: white;
+  font-size: 1.3rem;
+  grid-column: 1 / -1;
+}
+.tabla-btn.destacado:hover { background: #8b7ff7; border-color: white; }
+
+.tabla-emoji { display: block; font-size: 1.4rem; margin-bottom: 0.2rem; }
+
+/* Ejercicio compacto (las 10 multiplicaciones en lista) */
+.ej-tabla {
+  background: white;
+  border-radius: var(--radio);
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.8rem;
+  box-shadow: var(--sombra);
+  border-left: 6px solid var(--gris);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  transition: border-color 0.3s;
+}
+.ej-tabla.correcto { border-left-color: var(--verde-osc); }
+.ej-tabla.incorrecto { border-left-color: var(--rojo-osc); }
+
+.ej-tabla .ejercicio-num { margin: 0; }
+
+.ej-tabla .operacion {
+  font-size: 1.6rem;
+  font-weight: 700;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ej-tabla .feedback {
+  flex-basis: 100%;
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .ej-tabla .operacion { font-size: 1.4rem; }
+}
