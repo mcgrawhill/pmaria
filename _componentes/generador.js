@@ -38,6 +38,100 @@ const Generador = (function () {
     return { id: `f${idx}`, tipo: 'fraccion', num, den, color: elegir(rng, colores) };
   }
 
+  // ---------- DECIMALES Y MULTIPLICACIÓN ----------
+  // Trabajamos internamente con enteros (centésimas) para no arrastrar
+  // errores de coma flotante. Formateamos al final con "," (es-ES).
+
+  function _fmt2(centesimas) {
+    const signo = centesimas < 0 ? '-' : '';
+    const c = Math.abs(centesimas);
+    const ent = Math.floor(c / 100);
+    const dec = c % 100;
+    return `${signo}${ent},${String(dec).padStart(2, '0')}`;
+  }
+
+  function _fmt1(decimas) {
+    const signo = decimas < 0 ? '-' : '';
+    const d = Math.abs(decimas);
+    const ent = Math.floor(d / 10);
+    const dec = d % 10;
+    return `${signo}${ent},${dec}`;
+  }
+
+  function sumaDecimal(rng, idx) {
+    const op = elegir(rng, ['+', '-']);
+    let aCent = ent(rng, 200, 1999);
+    let bCent = ent(rng, 100, 999);
+    if (op === '-' && bCent >= aCent) { const t = aCent; aCent = bCent + 100; bCent = t; }
+    const rCent = op === '+' ? aCent + bCent : aCent - bCent;
+    return {
+      id: `sd${idx}`,
+      tipo: 'suma-decimal',
+      op,
+      a: _fmt2(aCent),
+      b: _fmt2(bCent),
+      respuesta: _fmt2(rCent),
+    };
+  }
+
+  function multCifra(rng, idx) {
+    const cifra = ent(rng, 2, 9);
+    const n = ent(rng, 100, 999);
+    return { id: `mc${idx}`, tipo: 'mult-cifra', a: n, b: cifra, respuesta: n * cifra };
+  }
+
+  function multDosCifras(rng, idx) {
+    const a = ent(rng, 11, 99);
+    const b = ent(rng, 11, 99);
+    return {
+      id: `m2${idx}`, tipo: 'mult-dos-cifras',
+      a, b,
+      // Productos parciales: a × unidades(b) y a × decenas(b) × 10
+      parcial1: a * (b % 10),
+      parcial2: a * Math.floor(b / 10) * 10,
+      respuesta: a * b,
+    };
+  }
+
+  function multDecimal(rng, idx) {
+    // Decimal con 1 cifra decimal × cifra entera. Resultado siempre 1 decimal.
+    const aDec = ent(rng, 11, 99); // décimas: 1,1..9,9
+    const b = ent(rng, 2, 9);
+    return {
+      id: `md${idx}`, tipo: 'mult-decimal',
+      a: _fmt1(aDec), b,
+      respuesta: _fmt1(aDec * b),
+    };
+  }
+
+  function combinada(rng, idx) {
+    const formas = [
+      () => { const a = ent(rng, 1, 9), b = ent(rng, 2, 5), c = ent(rng, 2, 5);
+        return { texto: `${a} + ${b} × ${c}`, valor: a + b * c }; },
+      () => { const b = ent(rng, 2, 5), c = ent(rng, 2, 5), a = ent(rng, 1, 9);
+        const r = b * c - a; return r > 0 ? { texto: `${b} × ${c} - ${a}`, valor: r } : null; },
+      () => { const a = ent(rng, 8, 25), b = ent(rng, 2, 4), c = ent(rng, 2, 5);
+        const r = a - b * c; return r > 0 ? { texto: `${a} - ${b} × ${c}`, valor: r } : null; },
+      () => { const b = ent(rng, 2, 9), c = ent(rng, 2, 5), a = ent(rng, 1, 9);
+        return { texto: `${b} × ${c} + ${a}`, valor: b * c + a }; },
+    ];
+    let r = null;
+    for (let i = 0; i < 20 && !r; i++) r = elegir(rng, formas)();
+    if (!r) r = { texto: '2 + 3 × 4', valor: 14 };
+    return { id: `oc${idx}`, tipo: 'combinada', enunciado: r.texto, respuesta: r.valor };
+  }
+
+  function divisionGrafica(rng, idx) {
+    const divisor = ent(rng, 2, 9);
+    const cociente = ent(rng, 2, 5);
+    const resto = ent(rng, 0, divisor - 1);
+    const dividendo = divisor * cociente + resto;
+    return {
+      id: `dg${idx}`, tipo: 'division-grafica',
+      dividendo, divisor, cociente, resto,
+    };
+  }
+
   function mixto(rng, idx) {
     // Limitamos den a 8 para que las pizzas se vean cómodas en pantalla
     // y entero a 4 para no abusar del ancho horizontal.
@@ -238,6 +332,46 @@ const Generador = (function () {
     return secciones;
   }
 
+  // Examen 3: decimales, multiplicaciones, combinadas, división gráfica.
+  function crearExamenDecimales(opts = {}) {
+    const semilla = opts.semilla;
+    const rng = prng(semilla);
+    const N = opts.porSeccion || {};
+
+    return [
+      {
+        id: 'sumas-restas-decimales', emoji: '➕', titulo: 'Sumas y restas con decimales',
+        descripcion: 'Calcula sumas y restas con números decimales. Pulsa los casilleros y escribe el resultado.',
+        ejercicios: repetir(N.sumasDecimales || 6, i => sumaDecimal(rng, i + 1)),
+      },
+      {
+        id: 'mult-una-cifra', emoji: '✖️', titulo: 'Multiplicaciones por una cifra',
+        descripcion: 'Calcula el producto de un número grande por una sola cifra.',
+        ejercicios: repetir(N.multCifra || 5, i => multCifra(rng, i + 1)),
+      },
+      {
+        id: 'mult-decimales', emoji: '💲', titulo: 'Multiplicaciones con decimales',
+        descripcion: 'Multiplica un número decimal por una cifra. ¡Acuérdate de poner la coma!',
+        ejercicios: repetir(N.multDecimal || 5, i => multDecimal(rng, i + 1)),
+      },
+      {
+        id: 'mult-dos-cifras', emoji: '🟦', titulo: 'Multiplicaciones por dos cifras',
+        descripcion: 'Multiplica dos números de dos cifras y escribe el resultado.',
+        ejercicios: repetir(N.multDosCifras || 5, i => multDosCifras(rng, i + 1)),
+      },
+      {
+        id: 'combinadas', emoji: '🧩', titulo: 'Operaciones combinadas',
+        descripcion: 'Recuerda: primero las multiplicaciones, luego las sumas y restas.',
+        ejercicios: repetir(N.combinadas || 6, i => combinada(rng, i + 1)),
+      },
+      {
+        id: 'division-grafica', emoji: '📏', titulo: 'Divisiones con regletas',
+        descripcion: 'Mira las regletas y escribe cuántas caben (cociente) y cuántas sobran (resto).',
+        ejercicios: repetir(N.divisionGrafica || 5, i => divisionGrafica(rng, i + 1)),
+      },
+    ];
+  }
+
   function repetir(n, fn) {
     return Array.from({ length: n }, (_, i) => fn(i));
   }
@@ -258,7 +392,14 @@ const Generador = (function () {
     probabilidad,
     plano,
     tableroPlano,
+    sumaDecimal,
+    multCifra,
+    multDosCifras,
+    multDecimal,
+    combinada,
+    divisionGrafica,
     crearExamen,
+    crearExamenDecimales,
     compararFracciones,
   };
 })();

@@ -189,3 +189,98 @@ test('crearExamen: incluye sección de mixtos con ejercicios bien formados', () 
     assert.ok(ej.entero >= 1 && ej.num >= 1 && ej.num < ej.den);
   });
 });
+
+// ---------- EXAMEN 3: DECIMALES Y OPERACIONES ----------
+
+test('sumaDecimal: respuesta = operando aplicando el signo', () => {
+  const rng = Generador.prng(SEMILLA);
+  for (let i = 0; i < 200; i++) {
+    const ej = Generador.sumaDecimal(rng, i);
+    assert.equal(ej.tipo, 'suma-decimal');
+    const aN = parseFloat(ej.a.replace(',', '.'));
+    const bN = parseFloat(ej.b.replace(',', '.'));
+    const rN = parseFloat(ej.respuesta.replace(',', '.'));
+    const esperado = ej.op === '+' ? aN + bN : aN - bN;
+    assert.ok(Math.abs(rN - esperado) < 1e-9,
+      `${ej.a} ${ej.op} ${ej.b} = ${ej.respuesta} (esperado ${esperado.toFixed(2)})`);
+    assert.ok(rN >= 0, 'resta no debería dar negativo');
+  }
+});
+
+test('multCifra: respuesta = a * b, a en [100,999], b en [2,9]', () => {
+  const rng = Generador.prng(SEMILLA);
+  for (let i = 0; i < 200; i++) {
+    const ej = Generador.multCifra(rng, i);
+    assert.equal(ej.tipo, 'mult-cifra');
+    assert.equal(ej.respuesta, ej.a * ej.b);
+    assert.ok(ej.a >= 100 && ej.a <= 999);
+    assert.ok(ej.b >= 2 && ej.b <= 9);
+  }
+});
+
+test('multDosCifras: respuesta = a * b y parciales suman correctamente', () => {
+  const rng = Generador.prng(SEMILLA);
+  for (let i = 0; i < 200; i++) {
+    const ej = Generador.multDosCifras(rng, i);
+    assert.equal(ej.tipo, 'mult-dos-cifras');
+    assert.ok(ej.a >= 11 && ej.a <= 99);
+    assert.ok(ej.b >= 11 && ej.b <= 99);
+    assert.equal(ej.respuesta, ej.a * ej.b);
+    assert.equal(ej.parcial1 + ej.parcial2, ej.respuesta);
+  }
+});
+
+test('multDecimal: respuesta correcta con 1 decimal', () => {
+  const rng = Generador.prng(SEMILLA);
+  for (let i = 0; i < 200; i++) {
+    const ej = Generador.multDecimal(rng, i);
+    assert.equal(ej.tipo, 'mult-decimal');
+    const aN = parseFloat(ej.a.replace(',', '.'));
+    const rN = parseFloat(ej.respuesta.replace(',', '.'));
+    const esperado = aN * ej.b;
+    assert.ok(Math.abs(rN - esperado) < 1e-9,
+      `${ej.a} × ${ej.b} = ${ej.respuesta} (esperado ${esperado})`);
+    assert.match(ej.respuesta, /^\d+,\d$/, 'debe tener exactamente 1 decimal');
+  }
+});
+
+test('combinada: respuesta > 0 y matemáticamente correcta', () => {
+  const rng = Generador.prng(SEMILLA);
+  for (let i = 0; i < 200; i++) {
+    const ej = Generador.combinada(rng, i);
+    assert.equal(ej.tipo, 'combinada');
+    assert.ok(ej.respuesta > 0, `resultado debe ser positivo: ${ej.enunciado}`);
+    // eslint-disable-next-line no-eval -- enunciado es generado por nosotros con sólo dígitos y operadores básicos
+    const seguro = ej.enunciado.replace(/\s/g, '').replace(/×/g, '*');
+    assert.ok(/^[0-9+\-*]+$/.test(seguro), `expresión inesperada: ${seguro}`);
+    // eslint-disable-next-line no-eval
+    const evaluado = eval(seguro);
+    assert.equal(evaluado, ej.respuesta);
+  }
+});
+
+test('divisionGrafica: dividendo = divisor*cociente + resto, resto < divisor', () => {
+  const rng = Generador.prng(SEMILLA);
+  for (let i = 0; i < 200; i++) {
+    const ej = Generador.divisionGrafica(rng, i);
+    assert.equal(ej.tipo, 'division-grafica');
+    assert.equal(ej.dividendo, ej.divisor * ej.cociente + ej.resto);
+    assert.ok(ej.resto < ej.divisor && ej.resto >= 0);
+    assert.ok(ej.divisor >= 2 && ej.divisor <= 9);
+  }
+});
+
+test('crearExamenDecimales: 6 secciones reproducibles', () => {
+  const a = Generador.crearExamenDecimales({ semilla: 42 });
+  const b = Generador.crearExamenDecimales({ semilla: 42 });
+  assert.deepEqual(a, b, 'misma semilla → mismo examen');
+  const ids = a.map(s => s.id);
+  assert.deepEqual(ids, [
+    'sumas-restas-decimales',
+    'mult-una-cifra',
+    'mult-decimales',
+    'mult-dos-cifras',
+    'combinadas',
+    'division-grafica',
+  ]);
+});

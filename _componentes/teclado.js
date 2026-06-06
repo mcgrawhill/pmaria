@@ -26,11 +26,12 @@ const Teclado = {
 
   abrir(displayEl, opts = {}) {
     this.display = displayEl;
-    this.opts = { maxDigitos: 1, ...opts };
+    this.opts = { maxDigitos: 1, decimal: false, ...opts };
     this.primerPulse = !!(displayEl.dataset.valor && displayEl.dataset.valor.length > 0);
 
     const teclado = document.getElementById('teclado');
     if (!teclado) return;
+    teclado.classList.toggle('con-decimal', !!this.opts.decimal);
     teclado.hidden = false;
 
     document.querySelectorAll('.display-num').forEach(d => d.classList.remove('display-activo'));
@@ -55,6 +56,12 @@ const Teclado = {
     if (tecla === 'borrar') {
       v = v.slice(0, -1);
       this.primerPulse = false;
+    } else if (tecla === ',') {
+      if (!this.opts.decimal) return;
+      if (this.primerPulse) { v = ','; this.primerPulse = false; }
+      else if (v.includes(',')) return;
+      else if (v.length < this.opts.maxDigitos) v += ',';
+      else return;
     } else {
       if (this.primerPulse) {
         v = tecla;
@@ -70,12 +77,17 @@ const Teclado = {
     if (this.opts.onCambio) this.opts.onCambio(v);
 
     // Auto-cierre cuando alcanza el número de dígitos esperado.
-    if (tecla !== 'borrar' && v.length >= this.opts.maxDigitos) {
+    // Tras coma esperamos más entrada, así que no auto-cerramos por la coma.
+    if (tecla !== 'borrar' && tecla !== ',' && v.length >= this.opts.maxDigitos) {
       setTimeout(() => this.cerrar(), 180);
     }
   },
 
   init() {
+    // Asegurar que la tecla coma existe (oculta salvo en modo decimal).
+    // Así no hay que tocar el HTML de cada examen.
+    this._inyectarTeclaComa();
+
     document.querySelectorAll('.tecla').forEach(t => {
       t.addEventListener('click', () => this.pulsar(t.dataset.tecla));
     });
@@ -83,9 +95,24 @@ const Teclado = {
       if (!this.display) return;
       if (e.key === 'Escape') this.cerrar();
       else if (/^[0-9]$/.test(e.key)) this.pulsar(e.key);
+      else if (e.key === ',' || e.key === '.') this.pulsar(',');
       else if (e.key === 'Backspace' || e.key === 'Delete') this.pulsar('borrar');
       else if (e.key === 'Enter') this.cerrar();
     });
+  },
+
+  _inyectarTeclaComa() {
+    const teclas = document.querySelector('.teclado-teclas');
+    if (!teclas || teclas.querySelector('[data-tecla=","]')) return;
+    const cero = teclas.querySelector('[data-tecla="0"]');
+    const coma = document.createElement('button');
+    coma.type = 'button';
+    coma.className = 'tecla tecla-coma';
+    coma.dataset.tecla = ',';
+    coma.textContent = ',';
+    coma.setAttribute('aria-label', 'Coma decimal');
+    if (cero) teclas.insertBefore(coma, cero);
+    else teclas.appendChild(coma);
   },
 
   _mostrarOverlay() {

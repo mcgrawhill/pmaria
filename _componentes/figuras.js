@@ -173,6 +173,59 @@ const Figuras = {
     </div>`;
   },
 
+  // Regletas Cuisenaire para visualizar una división.
+  // Dibuja una regleta larga del tamaño "dividendo" y debajo, "cociente"
+  // regletas del tamaño "divisor" + (si hay) una regleta de "resto" en otro color.
+  // Convención de colores (aproximada a Cuisenaire para los más comunes):
+  regletasDivision(dividendo, divisor) {
+    const cociente = Math.floor(dividendo / divisor);
+    const resto = dividendo % divisor;
+    const ladoMax = 22;
+    const lado = Math.max(10, Math.min(ladoMax, Math.floor(420 / dividendo)));
+    const alto = 30;
+    const huecoFila = 14;
+    const ancho = dividendo * lado + 12;
+
+    const colores = {
+      1: '#ffffff', 2: '#d63031', 3: '#74b9ff', 4: '#fd79a8',
+      5: '#ffeaa7', 6: '#6c5ce7', 7: '#2d3436', 8: '#a29bfe',
+      9: '#3498db', 10: '#fd9644',
+    };
+    const colDivisor = colores[divisor] || '#a29bfe';
+    const colResto = colores[resto] || '#d4d4d4';
+
+    // Fila 1: regleta del dividendo (cuadrícula naranja claro).
+    let svg = '';
+    for (let i = 0; i < dividendo; i++) {
+      svg += `<rect x="${6 + i * lado}" y="6" width="${lado}" height="${alto}" fill="#ffcfa0" stroke="#8b6f47" stroke-width="1.2"/>`;
+    }
+
+    // Fila 2: cociente regletas del divisor + (si hay) resto en otro color.
+    const y2 = 6 + alto + huecoFila;
+    let xCur = 6;
+    for (let q = 0; q < cociente; q++) {
+      const w = divisor * lado;
+      svg += `<rect x="${xCur}" y="${y2}" width="${w}" height="${alto}" fill="${colDivisor}" stroke="#2d3436" stroke-width="1.5" opacity="0.9"/>`;
+      // subdivisiones para contar "unidades" dentro de cada regleta
+      for (let k = 1; k < divisor; k++) {
+        svg += `<line x1="${xCur + k * lado}" y1="${y2}" x2="${xCur + k * lado}" y2="${y2 + alto}" stroke="#2d3436" stroke-width="0.7" opacity="0.45"/>`;
+      }
+      xCur += w;
+    }
+    if (resto > 0) {
+      const w = resto * lado;
+      svg += `<rect x="${xCur}" y="${y2}" width="${w}" height="${alto}" fill="${colResto}" stroke="#2d3436" stroke-width="1.5" opacity="0.9"/>`;
+      for (let k = 1; k < resto; k++) {
+        svg += `<line x1="${xCur + k * lado}" y1="${y2}" x2="${xCur + k * lado}" y2="${y2 + alto}" stroke="#2d3436" stroke-width="0.7" opacity="0.45"/>`;
+      }
+    }
+
+    const altoTotal = y2 + alto + 6;
+    return `<div class="regletas-wrap"><svg class="figura figura-regletas" viewBox="0 0 ${ancho} ${altoTotal}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="División ${dividendo} entre ${divisor}">
+      ${svg}
+    </svg></div>`;
+  },
+
   // Tablero estilo "Hundir la flota" con letras y números.
   planoCartesiano(objetos, letras = 'ABCDEFGH', filas = 8) {
     const cols = letras.length;

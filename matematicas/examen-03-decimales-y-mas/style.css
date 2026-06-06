@@ -1,0 +1,114 @@
+/* Overrides específicos del Examen 3.
+   Los estilos base están en ../../_componentes/examen.css y teclado.css */
+
+/* Operación vertical (formato del libro): 2 operandos alineados + raya + resultado */
+.op-vertical {
+  display: inline-block;
+  background: #fff4d6;
+  border-radius: 14px;
+  padding: 0.8rem 1.4rem;
+  text-align: right;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  min-width: 120px;
+}
+.op-vertical .op-fila {
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.op-vertical .op-signo {
+  display: inline-block;
+  width: 1.3em;
+  text-align: left;
+}
+.op-vertical .op-linea {
+  border-top: 2.5px solid #2d3436;
+  margin: 0.3rem 0 0.5rem;
+}
+
+/* Operación horizontal (combinadas) */
+.op-horizontal {
+  background: #e3f0ff;
+  border-radius: 14px;
+  padding: 0.7rem 1.2rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Multiplicación por 2 cifras con productos parciales (estilo libro) */
+.op-dos-cifras {
+  display: inline-block;
+  background: #ddf3e2;
+  border-radius: 14px;
+  padding: 0.8rem 1.4rem;
+  text-align: right;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  min-width: 150px;
+}
+.op-dos-cifras .op-fila { font-size: 1.6rem; font-weight: 700; }
+.op-dos-cifras .op-linea { border-top: 2.5px solid #2d3436; margin: 0.3rem 0; }
+.op-dos-cifras .op-parcial {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  font-size: 1.3rem;
+  margin-top: 0.3rem;
+}
+.op-dos-cifras .op-parcial .signo { font-weight: 600; color: #555; }
+.op-dos-cifras .op-final {
+  border-top: 2.5px solid #2d3436;
+  margin-top: 0.4rem;
+  padding-top: 0.3rem;
+}
+
+/* División gráfica: regletas + dos casilleros (cociente / resto) */
+.regletas-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 0.4rem 0;
+}
+.figura-regletas { display: block; }
+.division-cuadro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--gris-claro);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.division-cuadro .barra-div {
+  display: inline-block;
+  width: 3px;
+  height: 1.6em;
+  background: #2d3436;
+  border-radius: 2px;
+  margin: 0 0.2rem;
+}
+.division-resp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.division-resp .display-num { min-width: 70px; min-height: 50px; }
+
+@media (max-width: 600px) {
+  .op-vertical .op-fila,
+  .op-dos-cifras .op-fila { font-size: 1.4rem; }
+  .op-horizontal { font-size: 1.4rem; padding: 0.5rem 0.9rem; }
+}

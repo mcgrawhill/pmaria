@@ -48,6 +48,11 @@
   grid-column: span 2;
 }
 
+/* Tecla coma: oculta salvo cuando el teclado está en modo decimal */
+.tecla-coma { display: none; }
+.teclado.con-decimal .tecla-coma { display: block; }
+.teclado.con-decimal .tecla-cero { grid-column: span 1; }
+
 .tecla-accion {
   background: #ffeaa7;
   color: #e17055;
