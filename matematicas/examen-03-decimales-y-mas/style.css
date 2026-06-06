@@ -1,32 +1,72 @@
 /* Overrides específicos del Examen 3.
    Los estilos base están en ../../_componentes/examen.css y teclado.css */
 
-/* Operación vertical (formato del libro): 2 operandos alineados + raya + resultado */
-.op-vertical {
-  display: inline-block;
-  background: #fff4d6;
-  border-radius: 14px;
-  padding: 0.8rem 1.4rem;
-  text-align: right;
+/* ===== Grid de operación vertical alineada por cifras =====
+   Cada columna es una "casilla" del cálculo.
+   La primera columna lleva el signo del operando inferior. */
+.op-grid {
+  --col-w: 40px;
+  display: grid;
+  gap: 2px;
   font-family: 'Fredoka', system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
-  min-width: 120px;
+  background: #fff4d6;
+  border-radius: 14px;
+  padding: 0.9rem 0.9rem 0.7rem;
+  width: max-content;
+  max-width: 100%;
 }
-.op-vertical .op-fila {
-  font-size: 1.7rem;
+
+.op-grid .op-cel {
+  width: var(--col-w);
+  height: var(--col-w);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
+  color: #2d3436;
 }
-.op-vertical .op-signo {
-  display: inline-block;
-  width: 1.3em;
-  text-align: left;
+.op-grid .op-cel.signo { font-size: 1.4rem; color: #555; }
+.op-grid .op-cel.coma { font-size: 1.5rem; font-weight: 700; padding-bottom: 0.4rem; }
+
+/* Llevada: hueco mini encima de cada columna */
+.op-grid .op-cel.llev { height: 26px; }
+.op-grid .op-cel.llev .display-num.mini {
+  width: 30px;
+  min-width: 0;
+  height: 26px;
+  min-height: 0;
+  font-size: 0.95rem;
+  padding: 0;
+  border-width: 2px;
+  border-style: dashed;
+  background: #fffbe7;
+  color: #b07b00;
 }
-.op-vertical .op-linea {
-  border-top: 2.5px solid #2d3436;
-  margin: 0.3rem 0 0.5rem;
+.op-grid .op-cel.llev .display-num.mini.vacio { color: transparent; }
+.op-grid .op-cel.llev .display-num.mini:hover { background: #fff2c2; }
+
+/* Línea horizontal entre operandos y resultado */
+.op-grid .op-linea {
+  height: 0;
+  border-top: 3px solid #2d3436;
+  margin: 4px 2px;
 }
+
+/* Casilleros por cifra del resultado */
+.op-grid .op-cel .display-num.cifra {
+  width: 36px;
+  min-width: 0;
+  height: 36px;
+  min-height: 0;
+  font-size: 1.4rem;
+  padding: 0;
+  border-width: 3px;
+  border-style: dashed;
+  background: #ffffff;
+}
+.op-grid .op-cel .display-num.cifra:hover { background: #f1f6fa; }
 
 /* Operación horizontal (combinadas) */
 .op-horizontal {
@@ -41,35 +81,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Multiplicación por 2 cifras con productos parciales (estilo libro) */
-.op-dos-cifras {
-  display: inline-block;
-  background: #ddf3e2;
-  border-radius: 14px;
-  padding: 0.8rem 1.4rem;
-  text-align: right;
-  font-family: 'Fredoka', system-ui, sans-serif;
-  font-variant-numeric: tabular-nums;
-  min-width: 150px;
-}
-.op-dos-cifras .op-fila { font-size: 1.6rem; font-weight: 700; }
-.op-dos-cifras .op-linea { border-top: 2.5px solid #2d3436; margin: 0.3rem 0; }
-.op-dos-cifras .op-parcial {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.4rem;
-  font-size: 1.3rem;
-  margin-top: 0.3rem;
-}
-.op-dos-cifras .op-parcial .signo { font-weight: 600; color: #555; }
-.op-dos-cifras .op-final {
-  border-top: 2.5px solid #2d3436;
-  margin-top: 0.4rem;
-  padding-top: 0.3rem;
-}
-
-/* División gráfica: regletas + dos casilleros (cociente / resto) */
+/* División con regletas */
 .regletas-wrap {
   width: 100%;
   overflow-x: auto;
@@ -108,7 +120,10 @@
 .division-resp .display-num { min-width: 70px; min-height: 50px; }
 
 @media (max-width: 600px) {
-  .op-vertical .op-fila,
-  .op-dos-cifras .op-fila { font-size: 1.4rem; }
+  .op-grid { --col-w: 32px; padding: 0.6rem 0.5rem; }
+  .op-grid .op-cel { font-size: 1.25rem; }
+  .op-grid .op-cel .display-num.cifra { width: 28px; height: 28px; font-size: 1.15rem; }
+  .op-grid .op-cel.llev { height: 22px; }
+  .op-grid .op-cel.llev .display-num.mini { width: 26px; height: 22px; font-size: 0.85rem; }
   .op-horizontal { font-size: 1.4rem; padding: 0.5rem 0.9rem; }
 }

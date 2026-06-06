@@ -79,7 +79,11 @@ const Teclado = {
     // Auto-cierre cuando alcanza el número de dígitos esperado.
     // Tras coma esperamos más entrada, así que no auto-cerramos por la coma.
     if (tecla !== 'borrar' && tecla !== ',' && v.length >= this.opts.maxDigitos) {
-      setTimeout(() => this.cerrar(), 180);
+      const onCompleto = this.opts.onCompleto;
+      setTimeout(() => {
+        this.cerrar();
+        if (typeof onCompleto === 'function') onCompleto(v);
+      }, 180);
     }
   },
 

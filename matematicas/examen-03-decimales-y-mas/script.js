@@ -6,32 +6,159 @@
 
 // ---------- HELPERS DE RENDER ----------
 
-function displayNumero(id, max = 2, label = 'Respuesta', decimal = false) {
-  const dec = decimal ? ' data-decimal="1"' : '';
+function displaySimple(id, max = 2, label = 'Respuesta') {
   return `<button type="button" class="display-num ancha vacio"
-            data-id="${id}" data-valor="" data-max="${max}"${dec}
+            data-id="${id}" data-valor="" data-max="${max}"
             aria-label="${label}">–</button>`;
 }
 
-function opVertical(a, b, signo) {
-  return `<div class="op-vertical">
-    <div class="op-fila">${a}</div>
-    <div class="op-fila"><span class="op-signo">${signo}</span>${b}</div>
-    <div class="op-linea"></div>
-  </div>`;
+// Separa una cadena "N" o "N,M" en parte entera y decimal (sin coma).
+function partirNumero(s) {
+  const t = String(s);
+  if (t.includes(',')) {
+    const [e, d] = t.split(',');
+    return { ent: e, dec: d };
+  }
+  return { ent: t, dec: '' };
 }
 
-function opDosCifrasDescompuesta(a, b, parcial1, parcial2) {
-  // Plantilla visual al estilo del libro (productos parciales).
-  // Si el niño ya respondió, los rellenamos en el feedback.
-  return `<div class="op-dos-cifras">
-    <div class="op-fila">${a}</div>
-    <div class="op-fila"><span class="op-signo">×</span>${b}</div>
-    <div class="op-linea"></div>
-    <div class="op-parcial"><span>${parcial1}</span></div>
-    <div class="op-parcial"><span class="signo">+</span><span>${parcial2}</span></div>
-    <div class="op-final op-fila">${a * b}</div>
-  </div>`;
+// Calcula la alineación visual de una operación vertical:
+// devuelve cuántas columnas enteras y decimales hace falta para que
+// los tres números (a, b, resultado) queden bien encolumnados.
+function alinearOp(a, b, respuesta) {
+  const pa = partirNumero(a);
+  const pb = partirNumero(b);
+  const pr = partirNumero(respuesta);
+  const maxEnt = Math.max(pa.ent.length, pb.ent.length, pr.ent.length);
+  const maxDec = Math.max(pa.dec.length, pb.dec.length, pr.dec.length);
+  const tieneComa = maxDec > 0;
+  const pad = (p) => ({
+    ent: p.ent.padStart(maxEnt, ' '),
+    dec: p.dec.padEnd(maxDec, ' '),
+  });
+  return {
+    maxEnt, maxDec, tieneComa,
+    a: pad(pa), b: pad(pb), r: pad(pr),
+    // Total de columnas de datos (sin contar la columna de signo a la izquierda).
+    cols: maxEnt + (tieneComa ? 1 : 0) + maxDec,
+  };
+}
+
+// Renderiza una fila estática de un operando (texto, sin inputs).
+function _filaEstatica(op, signoTxt, tieneComa) {
+  let html = `<div class="op-cel signo">${signoTxt}</div>`;
+  op.ent.split('').forEach(c => html += `<div class="op-cel">${c === ' ' ? '' : c}</div>`);
+  if (tieneComa) html += `<div class="op-cel coma">,</div>`;
+  op.dec.split('').forEach(c => html += `<div class="op-cel">${c === ' ' ? '' : c}</div>`);
+  return html;
+}
+
+// Renderiza la fila del resultado con casilleros por cifra.
+// Cada casillero tiene data-grupo común para encadenarlos.
+function _filaResultadoCifras(ej, maxEnt, maxDec, tieneComa) {
+  let html = `<div class="op-cel signo"></div>`;
+  const grupo = `${ej.id}-r`;
+  let idx = 0;
+  for (let i = 0; i < maxEnt; i++) {
+    html += `<div class="op-cel"><button type="button" class="display-num cifra vacio"
+              data-id="${grupo}-${idx}" data-grupo="${grupo}" data-pos="${idx}"
+              data-valor="" data-max="1" aria-label="Cifra ${idx + 1} del resultado">–</button></div>`;
+    idx++;
+  }
+  if (tieneComa) html += `<div class="op-cel coma">,</div>`;
+  for (let i = 0; i < maxDec; i++) {
+    html += `<div class="op-cel"><button type="button" class="display-num cifra vacio"
+              data-id="${grupo}-${idx}" data-grupo="${grupo}" data-pos="${idx}"
+              data-valor="" data-max="1" aria-label="Cifra ${idx + 1} del resultado">–</button></div>`;
+    idx++;
+  }
+  return html;
+}
+
+// Renderiza la fila de llevadas (huecos pequeños, opcionales).
+// La columna más a la izquierda no tiene llevada (no hay cifra anterior).
+function _filaLlevadas(ej, maxEnt, maxDec, tieneComa) {
+  let html = `<div class="op-cel llev"></div>`; // columna del signo
+  for (let i = 0; i < maxEnt; i++) {
+    if (i === 0) {
+      html += `<div class="op-cel llev"></div>`;
+    } else {
+      html += `<div class="op-cel llev"><button type="button" class="display-num mini vacio"
+                data-id="${ej.id}-l${i}" data-valor="" data-max="1"
+                aria-label="Llevada columna ${i + 1}">–</button></div>`;
+    }
+  }
+  if (tieneComa) html += `<div class="op-cel llev"></div>`;
+  for (let i = 0; i < maxDec; i++) {
+    html += `<div class="op-cel llev"><button type="button" class="display-num mini vacio"
+              data-id="${ej.id}-ld${i}" data-valor="" data-max="1"
+              aria-label="Llevada decimal ${i + 1}">–</button></div>`;
+  }
+  return html;
+}
+
+// Grid de operación vertical: signo + maxEnt + (coma) + maxDec columnas
+// Para mult-cifra y mult-decimal el "operando b" es una cifra, por eso pasamos
+// el operando b como número simple alineado a la derecha.
+function opCifrasGrid(ej, signoOp, { conLlevadas = true } = {}) {
+  const al = alinearOp(ej.a, ej.b, ej.respuesta);
+  const totalCols = 1 + al.cols;
+  let html = `<div class="op-grid" style="grid-template-columns: repeat(${totalCols}, var(--col-w));">`;
+  if (conLlevadas) html += _filaLlevadas(ej, al.maxEnt, al.maxDec, al.tieneComa);
+  html += _filaEstatica(al.a, '', al.tieneComa);
+  html += _filaEstatica(al.b, signoOp, al.tieneComa);
+  html += `<div class="op-linea" style="grid-column: 1 / span ${totalCols};"></div>`;
+  html += _filaResultadoCifras(ej, al.maxEnt, al.maxDec, al.tieneComa);
+  html += `</div>`;
+  return html;
+}
+
+// Renderiza una fila de casilleros para un grupo dado (parcial1, parcial2, total)
+// dentro de un grid de N columnas. El número se padea por la izquierda.
+function _filaCasilleros(ej, grupoSuf, numero, signoTxt, ncols) {
+  const num = String(numero);
+  const pad = ncols - num.length;
+  const grupo = `${ej.id}-${grupoSuf}`;
+  let html = `<div class="op-cel signo">${signoTxt}</div>`;
+  for (let i = 0; i < pad; i++) html += `<div class="op-cel"></div>`;
+  for (let i = 0; i < num.length; i++) {
+    html += `<div class="op-cel"><button type="button" class="display-num cifra vacio"
+              data-id="${grupo}-${i}" data-grupo="${grupo}" data-pos="${i}"
+              data-valor="" data-max="1" aria-label="Cifra ${i + 1}">–</button></div>`;
+  }
+  return html;
+}
+
+// Multiplicación por dos cifras: parcial1, parcial2 (desplazado), suma final.
+// No incluye llevadas (saturaría visualmente al haber dos productos parciales).
+function mult2CifrasGrid(ej) {
+  const total = String(ej.respuesta);
+  const ncols = total.length; // las cajas alcanzan el ancho del total
+  const totalCols = 1 + ncols;
+
+  // Multiplicandos alineados a la derecha
+  const padTexto = (txt) => {
+    const pad = ncols - txt.length;
+    let html = '';
+    for (let i = 0; i < pad; i++) html += `<div class="op-cel"></div>`;
+    txt.split('').forEach(c => html += `<div class="op-cel">${c}</div>`);
+    return html;
+  };
+
+  let html = `<div class="op-grid" style="grid-template-columns: repeat(${totalCols}, var(--col-w));">`;
+  // Multiplicandos
+  html += `<div class="op-cel signo"></div>` + padTexto(String(ej.a));
+  html += `<div class="op-cel signo">×</div>` + padTexto(String(ej.b));
+  html += `<div class="op-linea" style="grid-column: 1 / span ${totalCols};"></div>`;
+  // Producto parcial 1 (a × unidades(b))
+  html += _filaCasilleros(ej, 'p1', ej.parcial1, '', ncols);
+  // Producto parcial 2 (a × decenas(b) × 10)
+  html += _filaCasilleros(ej, 'p2', ej.parcial2, '+', ncols);
+  html += `<div class="op-linea" style="grid-column: 1 / span ${totalCols};"></div>`;
+  // Total
+  html += _filaCasilleros(ej, 't', total, '', ncols);
+  html += `</div>`;
+  return html;
 }
 
 function casitaDivision(dividendo, divisor, idCociente, idResto, maxCoc, maxResto) {
@@ -43,11 +170,11 @@ function casitaDivision(dividendo, divisor, idCociente, idResto, maxCoc, maxRest
   <div class="division-resp" style="margin-top:0.6rem;display:flex;flex-direction:row;gap:1rem;align-items:center;">
     <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
       <span>Cociente</span>
-      ${displayNumero(idCociente, maxCoc, 'Cociente')}
+      ${displaySimple(idCociente, maxCoc, 'Cociente')}
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
       <span>Resto</span>
-      ${displayNumero(idResto, maxResto, 'Resto')}
+      ${displaySimple(idResto, maxResto, 'Resto')}
     </div>
   </div>`;
 }
@@ -249,48 +376,16 @@ function renderEjercicio(ej, num) {
 
   if (ej.tipo === 'suma-decimal') {
     const signo = ej.op === '+' ? '+' : '−';
-    const maxR = ej.respuesta.length;
-    contenido = `
-      <div class="ejercicio-contenido">
-        ${opVertical(ej.a, ej.b, signo)}
-        <div style="display:flex;align-items:center;gap:0.6rem;">
-          <span style="font-weight:700;">=</span>
-          ${displayNumero(ej.id, maxR, 'Resultado', true)}
-        </div>
-      </div>`;
-  } else if (ej.tipo === 'mult-cifra') {
-    contenido = `
-      <div class="ejercicio-contenido">
-        ${opVertical(ej.a, ej.b, '×')}
-        <div style="display:flex;align-items:center;gap:0.6rem;">
-          <span style="font-weight:700;">=</span>
-          ${displayNumero(ej.id, String(ej.respuesta).length, 'Resultado')}
-        </div>
-      </div>`;
-  } else if (ej.tipo === 'mult-decimal') {
-    const maxR = String(ej.respuesta).length;
-    contenido = `
-      <div class="ejercicio-contenido">
-        ${opVertical(ej.a, ej.b, '×')}
-        <div style="display:flex;align-items:center;gap:0.6rem;">
-          <span style="font-weight:700;">=</span>
-          ${displayNumero(ej.id, maxR, 'Resultado', true)}
-        </div>
-      </div>`;
+    contenido = `<div class="ejercicio-contenido">${opCifrasGrid(ej, signo)}</div>`;
+  } else if (ej.tipo === 'mult-cifra' || ej.tipo === 'mult-decimal') {
+    contenido = `<div class="ejercicio-contenido">${opCifrasGrid(ej, '×')}</div>`;
   } else if (ej.tipo === 'mult-dos-cifras') {
-    contenido = `
-      <div class="ejercicio-contenido">
-        ${opVertical(ej.a, ej.b, '×')}
-        <div style="display:flex;align-items:center;gap:0.6rem;">
-          <span style="font-weight:700;">=</span>
-          ${displayNumero(ej.id, String(ej.respuesta).length, 'Resultado')}
-        </div>
-      </div>`;
+    contenido = `<div class="ejercicio-contenido">${mult2CifrasGrid(ej)}</div>`;
   } else if (ej.tipo === 'combinada') {
     contenido = `
       <div class="ejercicio-contenido">
         <div class="op-horizontal">${ej.enunciado} =</div>
-        ${displayNumero(ej.id, String(ej.respuesta).length, 'Resultado')}
+        ${displaySimple(ej.id, String(ej.respuesta).length, 'Resultado')}
       </div>`;
   } else if (ej.tipo === 'division-grafica') {
     const idCoc = `${ej.id}-c`;
@@ -326,14 +421,43 @@ function conectarEventos() {
     disp.addEventListener('click', () => {
       if (disp.disabled) return;
       const id = disp.dataset.id;
-      const decimal = disp.dataset.decimal === '1';
+      const grupo = disp.dataset.grupo;
+      const pos = parseInt(disp.dataset.pos, 10);
       Teclado.abrir(disp, {
-        maxDigitos: parseInt(disp.dataset.max, 10) || 2,
-        decimal,
+        maxDigitos: parseInt(disp.dataset.max, 10) || 1,
+        decimal: false,
         onCambio: (valor) => { estado.respuestas[id] = valor; },
+        // Si pertenece a un grupo de cifras, al llenar pasa al siguiente.
+        onCompleto: grupo ? () => {
+          const siguiente = document.querySelector(
+            `.display-num.cifra[data-grupo="${grupo}"][data-pos="${pos + 1}"]:not([disabled])`);
+          if (siguiente) siguiente.click();
+        } : undefined,
       });
     });
   });
+}
+
+// Devuelve el array ordenado de elementos de un grupo de cifras.
+function _displaysGrupo(grupo) {
+  return Array.from(document.querySelectorAll(`.display-num.cifra[data-grupo="${grupo}"]`))
+    .sort((a, b) => parseInt(a.dataset.pos, 10) - parseInt(b.dataset.pos, 10));
+}
+
+// Comprueba un grupo de cifras contra el número esperado. Marca cada cifra
+// individualmente (ok/ko) y deshabilita. Devuelve true si todas coinciden.
+function _comprobarGrupoCifras(grupo, esperado) {
+  const lista = _displaysGrupo(grupo);
+  const esperadoDigitos = String(esperado).replace(',', '').split('');
+  let todoOk = lista.length === esperadoDigitos.length;
+  lista.forEach((d, i) => {
+    const v = d.dataset.valor || '';
+    const ok = v === esperadoDigitos[i];
+    d.disabled = true;
+    d.classList.add(ok ? 'ok' : 'ko');
+    if (!ok) todoOk = false;
+  });
+  return todoOk;
 }
 
 // ---------- COMPROBACIÓN ----------
@@ -348,21 +472,21 @@ function comprobarSeccion() {
     let correcto = false;
     let textoCorrecto = '';
 
-    if (ej.tipo === 'suma-decimal' || ej.tipo === 'mult-decimal') {
-      const v = (estado.respuestas[ej.id] || '').trim().replace('.', ',');
-      correcto = v === ej.respuesta;
-      textoCorrecto = ej.respuesta;
-      marcarDisplay(div, ej.id, correcto);
-    } else if (ej.tipo === 'mult-cifra' || ej.tipo === 'mult-dos-cifras' || ej.tipo === 'combinada') {
+    if (ej.tipo === 'suma-decimal' || ej.tipo === 'mult-cifra' || ej.tipo === 'mult-decimal') {
+      correcto = _comprobarGrupoCifras(`${ej.id}-r`, ej.respuesta);
+      textoCorrecto = String(ej.respuesta);
+    } else if (ej.tipo === 'mult-dos-cifras') {
+      // Comprobar los tres grupos (parcial1, parcial2, total) cifra a cifra.
+      _comprobarGrupoCifras(`${ej.id}-p1`, ej.parcial1);
+      _comprobarGrupoCifras(`${ej.id}-p2`, ej.parcial2);
+      const totalOk = _comprobarGrupoCifras(`${ej.id}-t`, ej.respuesta);
+      correcto = totalOk;
+      textoCorrecto = `${ej.respuesta} (parciales: ${ej.parcial1} + ${ej.parcial2})`;
+    } else if (ej.tipo === 'combinada') {
       const v = parseInt(estado.respuestas[ej.id], 10);
       correcto = v === ej.respuesta;
       textoCorrecto = String(ej.respuesta);
       marcarDisplay(div, ej.id, correcto);
-
-      // Ayuda extra para mult-dos-cifras: mostrar productos parciales si fallaron.
-      if (!correcto && ej.tipo === 'mult-dos-cifras') {
-        textoCorrecto = `${ej.respuesta} (${ej.a}×${ej.b % 10}=${ej.parcial1}, ${ej.a}×${Math.floor(ej.b / 10)}0=${ej.parcial2}, suma ${ej.parcial1}+${ej.parcial2})`;
-      }
     } else if (ej.tipo === 'division-grafica') {
       const rc = parseInt(estado.respuestas[`${ej.id}-c`], 10);
       const rr = parseInt(estado.respuestas[`${ej.id}-r`], 10);
