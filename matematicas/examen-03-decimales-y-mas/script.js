@@ -444,12 +444,12 @@ function conectarEventos() {
         maxDigitos: parseInt(disp.dataset.max, 10) || 1,
         decimal: false,
         onCambio: (valor) => { estado.respuestas[id] = valor; },
-        // Al rellenar una cifra, el teclado se cierra y el SIGUIENTE casillero
-        // del grupo queda resaltado con un parpadeo para que el niño sepa
-        // dónde pulsar. No se abre automáticamente.
+        // Al rellenar una cifra, el teclado se cierra y se resalta el siguiente
+        // casillero del grupo. Los niños rellenan de DERECHA a IZQUIERDA
+        // (unidades → decenas → centenas...), así que el "siguiente" es pos-1.
         onCompleto: grupo ? () => {
           const siguiente = document.querySelector(
-            `.display-num.cifra[data-grupo="${grupo}"][data-pos="${pos + 1}"]:not([disabled])`);
+            `.display-num.cifra[data-grupo="${grupo}"][data-pos="${pos - 1}"]:not([disabled])`);
           if (siguiente) siguiente.classList.add('cifra-pendiente');
         } : undefined,
       });
@@ -773,6 +773,44 @@ function mostrarBannerContinuar(borrador) {
   });
 }
 
+// ---------- CHULETA DE TABLAS ----------
+// Botón flotante "📋 Tablas". Antes de mostrarlas pide confirmación
+// ("¿Estás seguro?") para que el niño intente acordarse primero.
+
+function pedirChuleta() {
+  Modal.mostrar({
+    emoji: '🤔',
+    titulo: '¿Seguro que quieres ver la chuleta?',
+    html: '<p>Intenta acordarte primero. Si necesitas ayuda, pulsa "Sí".</p>',
+    color: 'var(--naranja)',
+    botones: [
+      { texto: 'Lo intento sin ayuda', clase: 'boton-volver' },
+      { texto: 'Sí, ver tablas', clase: 'boton-comprobar', accion: mostrarChuleta },
+    ],
+  });
+}
+
+function mostrarChuleta() {
+  let html = '<div class="chuleta-grid">';
+  for (let n = 2; n <= 9; n++) {
+    html += `<div class="chuleta-tabla"><h4>Tabla del ${n}</h4>`;
+    for (let i = 1; i <= 10; i++) {
+      html += `<div class="fila">${n} × ${i} = <strong>${n * i}</strong></div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  Modal.mostrar({
+    emoji: '📋',
+    titulo: 'Tablas de multiplicar',
+    html,
+    color: 'var(--naranja)',
+    botones: [
+      { texto: 'Cerrar y seguir', clase: 'boton-siguiente' },
+    ],
+  });
+}
+
 // ---------- CRONÓMETRO ----------
 
 function iniciarCronometro(acumuladoMs = 0) {
@@ -790,6 +828,8 @@ function iniciarCronometro(acumuladoMs = 0) {
 function init() {
   Teclado.init();
   enlazarBotonesPie();
+  const btnChu = document.getElementById('btn-chuleta');
+  if (btnChu) btnChu.addEventListener('click', pedirChuleta);
   const borrador = leerBorradorPendiente();
   if (borrador) {
     renderPasos();

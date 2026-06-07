@@ -156,7 +156,54 @@
 }
 .division-resp .display-num { min-width: 70px; min-height: 50px; }
 
+/* Botón flotante "chuleta" — arriba a la derecha, justo bajo la cabecera. */
+.btn-chuleta {
+  position: fixed;
+  top: 84px;
+  right: 1rem;
+  z-index: 60;
+  background: #ffeaa7;
+  color: #b07b00;
+  border: 2px solid #e6c34a;
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.12s, background 0.15s;
+}
+.btn-chuleta:hover { background: #ffd86b; transform: translateY(-1px); }
+.btn-chuleta:active { transform: scale(0.97); }
+
+/* Modal de tablas: rejilla con las 8 tablas (2 al 9). */
+.chuleta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.7rem;
+  text-align: left;
+}
+.chuleta-tabla {
+  background: #fff4d6;
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.chuleta-tabla h4 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  color: #b07b00;
+  text-align: center;
+}
+.chuleta-tabla .fila {
+  font-size: 0.9rem;
+  color: #2d3436;
+  line-height: 1.45;
+}
+
 @media (max-width: 600px) {
+  .btn-chuleta { top: 72px; right: 0.6rem; padding: 0.4rem 0.7rem; font-size: 0.85rem; }
   .op-grid { --col-w: 32px; padding: 0.6rem 0.5rem; }
   .op-grid .op-cel { font-size: 1.25rem; }
   .op-grid .op-cel .display-num.cifra { width: 28px; height: 28px; font-size: 1.15rem; }
