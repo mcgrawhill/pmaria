@@ -244,18 +244,20 @@ test('multDecimal: respuesta correcta con 1 decimal', () => {
   }
 });
 
-test('combinada: respuesta > 0 y matemáticamente correcta', () => {
+test('combinada: respuesta > 0 y consistente con forma y operandos', () => {
   const rng = Generador.prng(SEMILLA);
   for (let i = 0; i < 200; i++) {
     const ej = Generador.combinada(rng, i);
     assert.equal(ej.tipo, 'combinada');
-    assert.ok(ej.respuesta > 0, `resultado debe ser positivo: ${ej.enunciado}`);
-    // eslint-disable-next-line no-eval -- enunciado es generado por nosotros con sólo dígitos y operadores básicos
-    const seguro = ej.enunciado.replace(/\s/g, '').replace(/×/g, '*');
-    assert.ok(/^[0-9+\-*]+$/.test(seguro), `expresión inesperada: ${seguro}`);
-    // eslint-disable-next-line no-eval
-    const evaluado = eval(seguro);
-    assert.equal(evaluado, ej.respuesta);
+    assert.ok(['a+bc', 'a-bc', 'bc+a', 'bc-a'].includes(ej.forma), `forma inesperada: ${ej.forma}`);
+    assert.ok(ej.respuesta > 0, `resultado debe ser positivo`);
+    assert.equal(ej.subResultado, ej.b * ej.c, `subResultado debe ser b*c`);
+    let esperado;
+    if (ej.forma === 'a+bc') esperado = ej.a + ej.subResultado;
+    else if (ej.forma === 'a-bc') esperado = ej.a - ej.subResultado;
+    else if (ej.forma === 'bc+a') esperado = ej.subResultado + ej.a;
+    else if (ej.forma === 'bc-a') esperado = ej.subResultado - ej.a;
+    assert.equal(esperado, ej.respuesta);
   }
 });
 

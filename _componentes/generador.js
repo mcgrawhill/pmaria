@@ -105,20 +105,26 @@ const Generador = (function () {
   }
 
   function combinada(rng, idx) {
+    // forma: 'a+bc' | 'a-bc' | 'bc+a' | 'bc-a'.
+    // El sub-resultado (b*c) y la respuesta final se exponen explícitamente
+    // para que el examen pueda pedir AMBOS al niño (paso 1 y paso 2).
     const formas = [
       () => { const a = ent(rng, 1, 9), b = ent(rng, 2, 5), c = ent(rng, 2, 5);
-        return { texto: `${a} + ${b} × ${c}`, valor: a + b * c }; },
+        return { forma: 'a+bc', a, b, c, subResultado: b * c, respuesta: a + b * c }; },
       () => { const b = ent(rng, 2, 5), c = ent(rng, 2, 5), a = ent(rng, 1, 9);
-        const r = b * c - a; return r > 0 ? { texto: `${b} × ${c} - ${a}`, valor: r } : null; },
+        const sub = b * c, r = sub - a;
+        return r > 0 ? { forma: 'bc-a', a, b, c, subResultado: sub, respuesta: r } : null; },
       () => { const a = ent(rng, 8, 25), b = ent(rng, 2, 4), c = ent(rng, 2, 5);
-        const r = a - b * c; return r > 0 ? { texto: `${a} - ${b} × ${c}`, valor: r } : null; },
+        const sub = b * c, r = a - sub;
+        return r > 0 ? { forma: 'a-bc', a, b, c, subResultado: sub, respuesta: r } : null; },
       () => { const b = ent(rng, 2, 9), c = ent(rng, 2, 5), a = ent(rng, 1, 9);
-        return { texto: `${b} × ${c} + ${a}`, valor: b * c + a }; },
+        const sub = b * c;
+        return { forma: 'bc+a', a, b, c, subResultado: sub, respuesta: sub + a }; },
     ];
     let r = null;
     for (let i = 0; i < 20 && !r; i++) r = elegir(rng, formas)();
-    if (!r) r = { texto: '2 + 3 × 4', valor: 14 };
-    return { id: `oc${idx}`, tipo: 'combinada', enunciado: r.texto, respuesta: r.valor };
+    if (!r) r = { forma: 'a+bc', a: 2, b: 3, c: 4, subResultado: 12, respuesta: 14 };
+    return { id: `oc${idx}`, tipo: 'combinada', ...r };
   }
 
   function divisionGrafica(rng, idx) {

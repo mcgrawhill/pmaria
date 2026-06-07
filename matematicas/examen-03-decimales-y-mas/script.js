@@ -107,7 +107,7 @@ function _filaLlevadas(ej, maxEnt, maxDec, tieneComa) {
 // Grid de operación vertical: signo + maxEnt + (coma) + maxDec columnas
 // Para mult-cifra y mult-decimal el "operando b" es una cifra, por eso pasamos
 // el operando b como número simple alineado a la derecha.
-function opCifrasGrid(ej, signoOp, { conLlevadas = true } = {}) {
+function opCifrasGrid(ej, signoOp, { conLlevadas = true, bDerecha = false } = {}) {
   const al = alinearOp(ej.a, ej.b, ej.respuesta);
   const totalCols = 1 + al.cols;
   // En restas, las cifras del minuendo (primer operando) se pueden tachar
@@ -117,10 +117,26 @@ function opCifrasGrid(ej, signoOp, { conLlevadas = true } = {}) {
   let html = `<div class="op-grid" style="grid-template-columns: repeat(${totalCols}, var(--col-w));">`;
   if (conLlevadas) html += _filaLlevadas(ej, al.maxEnt, al.maxDec, al.tieneComa);
   html += _filaEstatica(al.a, '', al.tieneComa, esResta);
-  html += _filaEstatica(al.b, signoOp, al.tieneComa);
+  // En multiplicaciones por una cifra (con o sin decimales) el multiplicador
+  // se pinta pegado a la derecha, sin coma ni huecos decimales debajo —
+  // así se ve en el libro y evita confundir al niño.
+  if (bDerecha) html += _filaBDerecha(ej.b, signoOp, al.cols);
+  else html += _filaEstatica(al.b, signoOp, al.tieneComa);
   html += `<div class="op-linea" style="grid-column: 1 / span ${totalCols};"></div>`;
   html += _filaResultadoCifras(ej, al.maxEnt, al.maxDec, al.tieneComa);
   html += `</div>`;
+  return html;
+}
+
+// Pinta el segundo operando alineado a la derecha del grid de datos,
+// SIN respetar columnas posicionales del primero. Útil para mult × cifra:
+// "5,9 × 4" muestra el 4 abajo a la derecha sin coma debajo.
+function _filaBDerecha(b, signoTxt, totalDataCols) {
+  const bStr = String(b).replace(',', '');
+  let html = `<div class="op-cel signo">${signoTxt}</div>`;
+  const huecos = totalDataCols - bStr.length;
+  for (let i = 0; i < huecos; i++) html += `<div class="op-cel"></div>`;
+  bStr.split('').forEach(c => html += `<div class="op-cel">${c}</div>`);
   return html;
 }
 
@@ -170,6 +186,26 @@ function mult2CifrasGrid(ej) {
   html += _filaCasilleros(ej, 't', total, '', ncols);
   html += `</div>`;
   return html;
+}
+
+// Texto del enunciado completo de una combinada según su forma.
+function enunciadoCombinada(ej) {
+  if (ej.forma === 'a+bc') return `${ej.a} + ${ej.b} × ${ej.c}`;
+  if (ej.forma === 'a-bc') return `${ej.a} - ${ej.b} × ${ej.c}`;
+  if (ej.forma === 'bc+a') return `${ej.b} × ${ej.c} + ${ej.a}`;
+  if (ej.forma === 'bc-a') return `${ej.b} × ${ej.c} - ${ej.a}`;
+  return '';
+}
+
+// Texto del paso 2 con el "eco" del sub-resultado (que se rellena dinámicamente
+// desde el casillero del paso 1).
+function paso2Texto(ej) {
+  const eco = `<span class="sub-eco vacio" id="sub-eco-${ej.id}">?</span>`;
+  if (ej.forma === 'a+bc') return `${ej.a} + ${eco}`;
+  if (ej.forma === 'a-bc') return `${ej.a} - ${eco}`;
+  if (ej.forma === 'bc+a') return `${eco} + ${ej.a}`;
+  if (ej.forma === 'bc-a') return `${eco} - ${ej.a}`;
+  return '';
 }
 
 function casitaDivision(dividendo, divisor, idCociente, idResto, maxCoc, maxResto) {
@@ -255,14 +291,14 @@ const SECCIONES = [
     id: 'combinadas',
     emoji: '🧩',
     titulo: 'Operaciones combinadas',
-    descripcion: 'Recuerda: primero las multiplicaciones, después las sumas y restas.',
+    descripcion: 'Primero la multiplicación, luego sumas o restas. Rellena el resultado de cada paso.',
     ejercicios: [
-      { id: 'oc1', tipo: 'combinada', enunciado: '5 + 5 × 6', respuesta: 35 },
-      { id: 'oc2', tipo: 'combinada', enunciado: '3 × 3 - 2', respuesta: 7 },
-      { id: 'oc3', tipo: 'combinada', enunciado: '9 - 6 × 1', respuesta: 3 },
-      { id: 'oc4', tipo: 'combinada', enunciado: '10 - 4 × 2', respuesta: 2 },
-      { id: 'oc5', tipo: 'combinada', enunciado: '5 × 5 + 6', respuesta: 31 },
-      { id: 'oc6', tipo: 'combinada', enunciado: '4 + 5 × 2', respuesta: 14 },
+      { id: 'oc1', tipo: 'combinada', forma: 'a+bc', a: 5, b: 5, c: 6, subResultado: 30, respuesta: 35 },
+      { id: 'oc2', tipo: 'combinada', forma: 'bc-a', a: 2, b: 3, c: 3, subResultado: 9, respuesta: 7 },
+      { id: 'oc3', tipo: 'combinada', forma: 'a-bc', a: 9, b: 6, c: 1, subResultado: 6, respuesta: 3 },
+      { id: 'oc4', tipo: 'combinada', forma: 'a-bc', a: 10, b: 4, c: 2, subResultado: 8, respuesta: 2 },
+      { id: 'oc5', tipo: 'combinada', forma: 'bc+a', a: 6, b: 5, c: 5, subResultado: 25, respuesta: 31 },
+      { id: 'oc6', tipo: 'combinada', forma: 'a+bc', a: 4, b: 5, c: 2, subResultado: 10, respuesta: 14 },
     ],
   },
   {
@@ -389,14 +425,27 @@ function renderEjercicio(ej, num) {
     const signo = ej.op === '+' ? '+' : '−';
     contenido = `<div class="ejercicio-contenido">${opCifrasGrid(ej, signo)}</div>`;
   } else if (ej.tipo === 'mult-cifra' || ej.tipo === 'mult-decimal') {
-    contenido = `<div class="ejercicio-contenido">${opCifrasGrid(ej, '×')}</div>`;
+    contenido = `<div class="ejercicio-contenido">${opCifrasGrid(ej, '×', { bDerecha: true })}</div>`;
   } else if (ej.tipo === 'mult-dos-cifras') {
     contenido = `<div class="ejercicio-contenido">${mult2CifrasGrid(ej)}</div>`;
   } else if (ej.tipo === 'combinada') {
     contenido = `
-      <div class="ejercicio-contenido">
-        <div class="op-horizontal">${ej.enunciado} =</div>
-        ${displaySimple(ej.id, String(ej.respuesta).length, 'Resultado')}
+      <div class="combinada">
+        <div class="combinada-enunciado">${enunciadoCombinada(ej)} = ?</div>
+        <div class="paso-combinada">
+          <div class="paso-label">1️⃣ Primero la multiplicación:</div>
+          <div class="paso-op">
+            <span>${ej.b} × ${ej.c} =</span>
+            ${displaySimple(ej.id + '-sub', String(ej.subResultado).length, 'Sub-resultado')}
+          </div>
+        </div>
+        <div class="paso-combinada">
+          <div class="paso-label">2️⃣ Ahora con el resultado:</div>
+          <div class="paso-op">
+            <span>${paso2Texto(ej)} =</span>
+            ${displaySimple(ej.id + '-final', String(ej.respuesta).length, 'Resultado final')}
+          </div>
+        </div>
       </div>`;
   } else if (ej.tipo === 'division-grafica') {
     const idCoc = `${ej.id}-c`;
@@ -443,7 +492,18 @@ function conectarEventos() {
       Teclado.abrir(disp, {
         maxDigitos: parseInt(disp.dataset.max, 10) || 1,
         decimal: false,
-        onCambio: (valor) => { estado.respuestas[id] = valor; },
+        onCambio: (valor) => {
+          estado.respuestas[id] = valor;
+          // Si es el sub-resultado de una combinada, reflejar el valor en el eco del paso 2.
+          if (id.endsWith('-sub')) {
+            const ejId = id.slice(0, -4);
+            const eco = document.getElementById(`sub-eco-${ejId}`);
+            if (eco) {
+              eco.textContent = valor || '?';
+              eco.classList.toggle('vacio', !valor);
+            }
+          }
+        },
         // Al rellenar una cifra, el teclado se cierra y se resalta el siguiente
         // casillero del grupo. Los niños rellenan de DERECHA a IZQUIERDA
         // (unidades → decenas → centenas...), así que el "siguiente" es pos-1.
@@ -502,10 +562,18 @@ function comprobarSeccion() {
       correcto = totalOk;
       textoCorrecto = `${ej.respuesta} (parciales: ${ej.parcial1} + ${ej.parcial2})`;
     } else if (ej.tipo === 'combinada') {
-      const v = parseInt(estado.respuestas[ej.id], 10);
-      correcto = v === ej.respuesta;
-      textoCorrecto = String(ej.respuesta);
-      marcarDisplay(div, ej.id, correcto);
+      const vSub = parseInt(estado.respuestas[ej.id + '-sub'], 10);
+      const vFin = parseInt(estado.respuestas[ej.id + '-final'], 10);
+      const subOk = vSub === ej.subResultado;
+      const finOk = vFin === ej.respuesta;
+      correcto = subOk && finOk;
+      textoCorrecto = `${ej.b} × ${ej.c} = ${ej.subResultado}; resultado final ${ej.respuesta}`;
+      const displays = div.querySelectorAll('.display-num');
+      displays.forEach(d => {
+        d.disabled = true;
+        if (d.dataset.id === ej.id + '-sub') d.classList.add(subOk ? 'ok' : 'ko');
+        if (d.dataset.id === ej.id + '-final') d.classList.add(finOk ? 'ok' : 'ko');
+      });
     } else if (ej.tipo === 'division-grafica') {
       const rc = parseInt(estado.respuestas[`${ej.id}-c`], 10);
       const rr = parseInt(estado.respuestas[`${ej.id}-r`], 10);
