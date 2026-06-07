@@ -68,6 +68,19 @@
 }
 .op-grid .op-cel .display-num.cifra:hover { background: #f1f6fa; }
 
+/* Casillero "siguiente" tras completar el anterior: parpadeo suave para
+   indicar al niño dónde tiene que pulsar a continuación. */
+.display-num.cifra-pendiente {
+  border-color: #0984e3;
+  border-style: solid;
+  background: #e3f0ff;
+  animation: cifra-parpadeo 1.2s ease-in-out infinite;
+}
+@keyframes cifra-parpadeo {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(9, 132, 227, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(9, 132, 227, 0.30); }
+}
+
 /* Operación horizontal (combinadas) */
 .op-horizontal {
   background: #e3f0ff;

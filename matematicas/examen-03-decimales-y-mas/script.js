@@ -419,6 +419,8 @@ function conectarEventos() {
   document.querySelectorAll('.display-num').forEach(disp => {
     disp.addEventListener('click', () => {
       if (disp.disabled) return;
+      // Al clicar cualquier casillero, quitar el resaltado de "siguiente".
+      document.querySelectorAll('.cifra-pendiente').forEach(d => d.classList.remove('cifra-pendiente'));
       const id = disp.dataset.id;
       const grupo = disp.dataset.grupo;
       const pos = parseInt(disp.dataset.pos, 10);
@@ -426,11 +428,13 @@ function conectarEventos() {
         maxDigitos: parseInt(disp.dataset.max, 10) || 1,
         decimal: false,
         onCambio: (valor) => { estado.respuestas[id] = valor; },
-        // Si pertenece a un grupo de cifras, al llenar pasa al siguiente.
+        // Al rellenar una cifra, el teclado se cierra y el SIGUIENTE casillero
+        // del grupo queda resaltado con un parpadeo para que el niño sepa
+        // dónde pulsar. No se abre automáticamente.
         onCompleto: grupo ? () => {
           const siguiente = document.querySelector(
             `.display-num.cifra[data-grupo="${grupo}"][data-pos="${pos + 1}"]:not([disabled])`);
-          if (siguiente) siguiente.click();
+          if (siguiente) siguiente.classList.add('cifra-pendiente');
         } : undefined,
       });
     });
