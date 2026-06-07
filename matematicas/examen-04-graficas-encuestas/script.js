@@ -25,6 +25,7 @@ const SECCIONES_BRUTAS = [
         '¿A qué hora se come en tu casa?',
       ],
       unidad: 'niños', unidadCat: 'plato',
+      accionNoEligen: 'cocinas',
       categorias: [
         { id: 'pizza', label: 'Pizza', emoji: '🍕', valor: 8 },
         { id: 'pasta', label: 'Pasta', emoji: '🍝', valor: 4 },
@@ -48,6 +49,7 @@ const SECCIONES_BRUTAS = [
         '¿Qué equipo es el mejor del mundo?',
       ],
       unidad: 'niños', unidadCat: 'deporte',
+      accionNoEligen: 'organizas un partido de',
       categorias: [
         { id: 'futbol', label: 'Fútbol', emoji: '⚽', valor: 7 },
         { id: 'baloncesto', label: 'Baloncesto', emoji: '🏀', valor: 5 },
@@ -111,7 +113,7 @@ function expandirSeccion(sec) {
     },
     {
       id: `${id}-q6`, tipo: 'numerica',
-      enunciado: `Si cocinas <strong>${refNoEligen.emoji} ${refNoEligen.label}</strong>, ¿a cuántos ${g.unidad} <strong>no</strong> les es lo que más les gusta?`,
+      enunciado: `Si ${g.accionNoEligen || 'eliges'} <strong>${refNoEligen.emoji} ${refNoEligen.label}</strong>, ¿a cuántos ${g.unidad} <strong>no</strong> les es lo que más les gusta?`,
       respuesta: total - refNoEligen.valor,
     },
   ];

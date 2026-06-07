@@ -353,6 +353,7 @@ const Generador = (function () {
         '¿A qué hora se come en tu casa?',
       ],
       unidad: 'niños', unidadCat: 'plato',
+      accionNoEligen: 'cocinas',
       categorias: [
         { id: 'pizza', label: 'Pizza', emoji: '🍕' },
         { id: 'pasta', label: 'Pasta', emoji: '🍝' },
@@ -369,6 +370,7 @@ const Generador = (function () {
         '¿Qué equipo es el mejor del mundo?',
       ],
       unidad: 'niños', unidadCat: 'deporte',
+      accionNoEligen: 'organizas un partido de',
       categorias: [
         { id: 'futbol', label: 'Fútbol', emoji: '⚽' },
         { id: 'baloncesto', label: 'Baloncesto', emoji: '🏀' },
@@ -385,6 +387,7 @@ const Generador = (function () {
         '¿Cuál es la mascota más bonita?',
       ],
       unidad: 'niños', unidadCat: 'mascota',
+      accionNoEligen: 'tienes en casa',
       categorias: [
         { id: 'perro', label: 'Perro', emoji: '🐶' },
         { id: 'gato', label: 'Gato', emoji: '🐱' },
@@ -417,6 +420,7 @@ const Generador = (function () {
         preguntasFalsas: escenario.preguntasFalsas,
         unidad: escenario.unidad,
         unidadCat: escenario.unidadCat,
+        accionNoEligen: escenario.accionNoEligen,
         categorias: cats,
         labelEjeY: capitalizar(escenario.unidad),
       },
