@@ -338,6 +338,100 @@ const Generador = (function () {
     return secciones;
   }
 
+  // ---------- GRÁFICAS DE BARRAS (encuestas) ----------
+  // Escenarios disponibles: cada uno define la pregunta de la encuesta,
+  // 3 distractores y las 4 categorías (label + emoji). Los VALORES se
+  // generan aleatoriamente cada vez (entre 1 y 10) para que la gráfica
+  // sea distinta en modo aleatorio.
+  const ESCENARIOS_GRAFICAS = [
+    {
+      id: 'platos', emoji: '🍕', titulo: 'Encuesta: platos favoritos',
+      pregunta: '¿Cuál es tu plato favorito?',
+      preguntasFalsas: [
+        '¿Qué comiste ayer en casa?',
+        '¿Cuántos platos hay en el menú?',
+        '¿A qué hora se come en tu casa?',
+      ],
+      unidad: 'niños', unidadCat: 'plato',
+      categorias: [
+        { id: 'pizza', label: 'Pizza', emoji: '🍕' },
+        { id: 'pasta', label: 'Pasta', emoji: '🍝' },
+        { id: 'ensalada', label: 'Ensalada', emoji: '🥗' },
+        { id: 'hamburguesa', label: 'Hamburguesa', emoji: '🍔' },
+      ],
+    },
+    {
+      id: 'deportes', emoji: '⚽', titulo: 'Encuesta: deportes favoritos',
+      pregunta: '¿Cuál es tu deporte favorito?',
+      preguntasFalsas: [
+        '¿Cuántos deportes practicas?',
+        '¿Cuándo entrenas con tu equipo?',
+        '¿Qué equipo es el mejor del mundo?',
+      ],
+      unidad: 'niños', unidadCat: 'deporte',
+      categorias: [
+        { id: 'futbol', label: 'Fútbol', emoji: '⚽' },
+        { id: 'baloncesto', label: 'Baloncesto', emoji: '🏀' },
+        { id: 'natacion', label: 'Natación', emoji: '🏊' },
+        { id: 'tenis', label: 'Tenis', emoji: '🎾' },
+      ],
+    },
+    {
+      id: 'mascotas', emoji: '🐶', titulo: 'Encuesta: mascotas favoritas',
+      pregunta: '¿Cuál es tu mascota favorita?',
+      preguntasFalsas: [
+        '¿Cuántas mascotas tienes?',
+        '¿Qué mascotas hay en el barrio?',
+        '¿Cuál es la mascota más bonita?',
+      ],
+      unidad: 'niños', unidadCat: 'mascota',
+      categorias: [
+        { id: 'perro', label: 'Perro', emoji: '🐶' },
+        { id: 'gato', label: 'Gato', emoji: '🐱' },
+        { id: 'conejo', label: 'Conejo', emoji: '🐰' },
+        { id: 'pez', label: 'Pez', emoji: '🐠' },
+      ],
+    },
+  ];
+
+  // Construye una "sección bruta" con valores aleatorios para un escenario dado.
+  // El script.js del examen 4 se encarga de expandirla en ejercicios concretos.
+  function seccionGraficaBruta(rng, escenario) {
+    const cats = escenario.categorias.map(c => ({ ...c, valor: ent(rng, 1, 10) }));
+    // Elegimos referencias aleatorias para las preguntas 4-6:
+    // - refLeer: leer la barra de esta categoría
+    // - refDif1/refDif2: comparar dos categorías DISTINTAS, la primera con más valor
+    // - refNoEligen: si cocinas X, ¿cuántos NO la eligen?
+    const refLeer = cats[ent(rng, 0, cats.length - 1)];
+    const ordenadas = cats.slice().sort((a, b) => b.valor - a.valor);
+    const refDif1 = ordenadas[0];
+    const refDif2 = ordenadas[ordenadas.length - 1];
+    const refNoEligen = cats[ent(rng, 0, cats.length - 1)];
+    return {
+      id: `grafica-${escenario.id}`,
+      emoji: escenario.emoji,
+      titulo: escenario.titulo,
+      descripcion: 'Mira la gráfica y responde las preguntas sobre la encuesta.',
+      grafica: {
+        pregunta: escenario.pregunta,
+        preguntasFalsas: escenario.preguntasFalsas,
+        unidad: escenario.unidad,
+        unidadCat: escenario.unidadCat,
+        categorias: cats,
+        labelEjeY: capitalizar(escenario.unidad),
+      },
+      refs: { leer: refLeer.id, dif1: refDif1.id, dif2: refDif2.id, noEligen: refNoEligen.id },
+    };
+  }
+
+  function crearExamenGraficas(opts = {}) {
+    const semilla = opts.semilla;
+    const rng = prng(semilla);
+    // Elegir 2 escenarios DISTINTOS aleatoriamente.
+    const barajadas = ESCENARIOS_GRAFICAS.slice().sort(() => rng() - 0.5);
+    return barajadas.slice(0, 2).map(esc => seccionGraficaBruta(rng, esc));
+  }
+
   // Examen 3: decimales, multiplicaciones, combinadas, división gráfica.
   function crearExamenDecimales(opts = {}) {
     const semilla = opts.semilla;
@@ -406,6 +500,7 @@ const Generador = (function () {
     divisionGrafica,
     crearExamen,
     crearExamenDecimales,
+    crearExamenGraficas,
     compararFracciones,
   };
 })();

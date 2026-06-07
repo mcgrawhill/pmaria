@@ -39,13 +39,24 @@
     <a class="enlace-padres" href="dashboard.html">👪 Zona de padres</a>
   </main>
 
+  <footer class="version-footer">
+    <span id="app-version" aria-label="Versión instalada">Alana</span>
+  </footer>
+
   <script src="_componentes/almacen.js"></script>
   <script src="_componentes/perfil.js"></script>
   <script src="_componentes/pwa.js"></script>
   <script>
     document.getElementById('perfil-cont').innerHTML = Perfil.render();
     Perfil.conectarBotones();
-    if (window.PWA) PWA.registrar();
+    if (window.PWA) {
+      PWA.registrar();
+      // Mostrar la versión del SW activo (si lo hay).
+      const versionEl = document.getElementById('app-version');
+      PWA.obtenerVersion().then(v => {
+        if (versionEl) versionEl.textContent = v ? `Alana · ${v}` : 'Alana';
+      });
+    }
   </script>
 </body>
 </html>

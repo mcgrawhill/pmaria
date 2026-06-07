@@ -81,3 +81,13 @@ body.portada {
   background: white;
   color: #2d3436;
 }
+
+/* Footer con la versión del SW (útil para verificar despliegues). */
+.version-footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.8rem;
+  color: rgba(45, 52, 54, 0.5);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  letter-spacing: 0.02em;
+}

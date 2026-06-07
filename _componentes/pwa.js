@@ -118,5 +118,29 @@ const PWA = (function () {
     });
   }
 
-  return { registrar };
+  // Pregunta al SW activo cuál es su versión. Devuelve null si no hay
+  // controller o si la respuesta tarda > 1500ms (timeout).
+  function obtenerVersion() {
+    if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
+      return Promise.resolve(null);
+    }
+    return new Promise((resolve) => {
+      const ch = new MessageChannel();
+      let resuelto = false;
+      ch.port1.onmessage = (e) => {
+        if (resuelto) return;
+        resuelto = true;
+        resolve((e.data && e.data.version) || null);
+      };
+      try {
+        navigator.serviceWorker.controller.postMessage('version', [ch.port2]);
+      } catch (e) {
+        resuelto = true;
+        resolve(null);
+      }
+      setTimeout(() => { if (!resuelto) { resuelto = true; resolve(null); } }, 1500);
+    });
+  }
+
+  return { registrar, obtenerVersion };
 })();

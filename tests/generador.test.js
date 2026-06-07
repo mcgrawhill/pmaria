@@ -272,6 +272,42 @@ test('divisionGrafica: dividendo = divisor*cociente + resto, resto < divisor', (
   }
 });
 
+test('crearExamenGraficas: 2 secciones reproducibles con valores 1-10', () => {
+  const a = Generador.crearExamenGraficas({ semilla: 42 });
+  const b = Generador.crearExamenGraficas({ semilla: 42 });
+  assert.deepEqual(a, b, 'misma semilla → mismo examen');
+  assert.equal(a.length, 2, 'debe haber 2 gráficas');
+  a.forEach(sec => {
+    assert.ok(sec.grafica, 'cada sección tiene gráfica');
+    assert.ok(sec.refs, 'cada sección tiene refs para preguntas variables');
+    assert.ok(sec.grafica.categorias.length >= 3, 'al menos 3 categorías');
+    sec.grafica.categorias.forEach(c => {
+      assert.ok(c.valor >= 1 && c.valor <= 10, `valor fuera de rango: ${c.valor}`);
+      assert.ok(c.id && c.label && c.emoji);
+    });
+    // Las refs apuntan a categorías existentes
+    const ids = sec.grafica.categorias.map(c => c.id);
+    assert.ok(ids.includes(sec.refs.leer));
+    assert.ok(ids.includes(sec.refs.dif1));
+    assert.ok(ids.includes(sec.refs.dif2));
+    assert.ok(ids.includes(sec.refs.noEligen));
+  });
+  // Las dos secciones deben ser de escenarios DISTINTOS
+  assert.notEqual(a[0].id, a[1].id);
+});
+
+test('crearExamenGraficas: dif1.valor >= dif2.valor (la diferencia es no negativa)', () => {
+  for (let s = 1; s <= 50; s++) {
+    const ex = Generador.crearExamenGraficas({ semilla: s });
+    ex.forEach(sec => {
+      const cats = sec.grafica.categorias;
+      const d1 = cats.find(c => c.id === sec.refs.dif1);
+      const d2 = cats.find(c => c.id === sec.refs.dif2);
+      assert.ok(d1.valor >= d2.valor, `dif1 (${d1.valor}) debe >= dif2 (${d2.valor})`);
+    });
+  }
+});
+
 test('crearExamenDecimales: 6 secciones reproducibles', () => {
   const a = Generador.crearExamenDecimales({ semilla: 42 });
   const b = Generador.crearExamenDecimales({ semilla: 42 });

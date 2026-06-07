@@ -853,7 +853,9 @@ function pedirChuleta() {
     color: 'var(--naranja)',
     botones: [
       { texto: 'Lo intento sin ayuda', clase: 'boton-volver' },
-      { texto: 'Sí, ver tablas', clase: 'boton-comprobar', accion: mostrarChuleta },
+      // Devolvemos false para que el Modal no se cierre antes de abrir el de tablas
+      // (si se cerrara, también cerraría el nuevo modal al sustituir el nodo).
+      { texto: 'Sí, ver tablas', clase: 'boton-comprobar', accion: () => { mostrarChuleta(); return false; } },
     ],
   });
 }

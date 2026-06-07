@@ -23,4 +23,11 @@ const EXAMENES = [
     descripcion: 'Sumas y restas con decimales, multiplicaciones por 1 y 2 cifras, operaciones combinadas y división con regletas.',
     url: 'examen-03-decimales-y-mas/index.html',
   },
+  {
+    id: 'examen-04-graficas-encuestas',
+    emoji: '📊',
+    titulo: 'Gráficas y encuestas',
+    descripcion: 'Lee gráficas de barras y responde preguntas sobre encuestas: total, máximo, diferencias y complementos.',
+    url: 'examen-04-graficas-encuestas/index.html',
+  },
 ];

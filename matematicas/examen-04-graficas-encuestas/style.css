@@ -1,0 +1,91 @@
+/* Examen 4 — Gráficas de barras y encuestas */
+
+.grafica-wrap {
+  width: 100%;
+  overflow-x: auto;
+  background: white;
+  border-radius: 14px;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+}
+.figura-grafica { display: block; margin: 0 auto; }
+
+/* Bloque de pregunta tipo "multiple choice" con texto largo */
+.opciones-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.opciones-texto .opcion-texto {
+  background: var(--gris-claro);
+  border: 3px solid transparent;
+  border-radius: 14px;
+  padding: 0.7rem 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  color: var(--texto);
+  transition: all 0.15s;
+}
+.opciones-texto .opcion-texto:hover { background: #e9ecf1; }
+.opciones-texto .opcion-texto.elegida {
+  background: var(--azul);
+  color: white;
+  border-color: var(--azul-osc);
+}
+.opciones-texto .opcion-texto.ok {
+  background: var(--verde);
+  color: white;
+  border-color: var(--verde-osc);
+}
+.opciones-texto .opcion-texto.ko {
+  background: var(--rojo);
+  color: white;
+  border-color: var(--rojo-osc);
+}
+.opciones-texto .opcion-texto.solucion {
+  border-color: var(--verde-osc);
+  outline: 3px dashed var(--verde-osc);
+}
+
+/* Bloque de opciones multiple choice tipo "categoría" (emoji + label) */
+.opciones-cat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.opciones-cat .opcion-cat {
+  background: var(--gris-claro);
+  border: 3px solid transparent;
+  border-radius: 14px;
+  padding: 0.6rem 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1 1 auto;
+  min-width: 130px;
+  color: var(--texto);
+  text-align: center;
+}
+.opciones-cat .opcion-cat:hover { background: #e9ecf1; }
+.opciones-cat .opcion-cat .emoji { font-size: 1.4rem; display: block; }
+.opciones-cat .opcion-cat.elegida {
+  background: var(--azul); color: white; border-color: var(--azul-osc);
+}
+.opciones-cat .opcion-cat.ok { background: var(--verde); color: white; border-color: var(--verde-osc); }
+.opciones-cat .opcion-cat.ko { background: var(--rojo); color: white; border-color: var(--rojo-osc); }
+.opciones-cat .opcion-cat.solucion {
+  border-color: var(--verde-osc);
+  outline: 3px dashed var(--verde-osc);
+}
+
+.preg-numerica {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+.preg-numerica .preg-label { font-size: 1.05rem; font-weight: 500; flex: 1 1 200px; }

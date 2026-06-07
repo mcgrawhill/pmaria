@@ -2,7 +2,7 @@
 // Estrategia: stale-while-revalidate (responde cacheado y refresca en segundo plano).
 // Subir CACHE_NAME al cambiar este archivo para invalidar el cache anterior.
 
-const CACHE_NAME = 'alana-v18';
+const CACHE_NAME = 'alana-v19';
 const ARCHIVOS_BASE = [
   './',
   'index.html',
@@ -34,6 +34,9 @@ const ARCHIVOS_BASE = [
   'matematicas/examen-03-decimales-y-mas/index.html',
   'matematicas/examen-03-decimales-y-mas/script.js',
   'matematicas/examen-03-decimales-y-mas/style.css',
+  'matematicas/examen-04-graficas-encuestas/index.html',
+  'matematicas/examen-04-graficas-encuestas/script.js',
+  'matematicas/examen-04-graficas-encuestas/style.css',
   'dashboard.html',
 ];
 
@@ -44,6 +47,13 @@ self.addEventListener('install', (event) => {
     )
   );
   self.skipWaiting();
+});
+
+// Permite a la página consultar la versión activa del SW.
+self.addEventListener('message', (event) => {
+  if (event.data === 'version' && event.ports && event.ports[0]) {
+    event.ports[0].postMessage({ version: CACHE_NAME });
+  }
 });
 
 self.addEventListener('activate', (event) => {

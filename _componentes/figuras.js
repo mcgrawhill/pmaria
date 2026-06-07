@@ -173,6 +173,65 @@ const Figuras = {
     </div>`;
   },
 
+  // Gráfica de barras (encuestas) con eje Y 0-maxValor y eje X de categorías.
+  // categorias: [{ id, label, emoji, valor, color? }]
+  graficaBarras(categorias, opts = {}) {
+    const maxValor = opts.maxValor || 10;
+    const labelEjeY = opts.labelEjeY || '';
+    const padL = 46, padR = 16, padT = 26, padB = 78;
+    const barGap = 86;
+    const ancho = padL + padR + barGap * categorias.length;
+    const alto = 320;
+    const utilH = alto - padT - padB;
+    const utilW = ancho - padL - padR;
+    const barW = (utilW / categorias.length) * 0.65;
+
+    const paleta = ['#fd9644', '#74b9ff', '#55efc4', '#fd79a8', '#a29bfe', '#ffeaa7'];
+
+    // Cuadrícula horizontal + etiquetas del eje Y
+    let cuadricula = '';
+    let etiquetasY = '';
+    for (let i = 0; i <= maxValor; i++) {
+      const y = padT + utilH - (i / maxValor) * utilH;
+      cuadricula += `<line x1="${padL}" y1="${y}" x2="${ancho - padR}" y2="${y}" stroke="#dde2eb" stroke-width="1"/>`;
+      etiquetasY += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" font-size="12" font-weight="600" font-family="Fredoka, sans-serif" fill="#555">${i}</text>`;
+    }
+
+    // Ejes Y y X
+    let ejes = `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + utilH}" stroke="#2d3436" stroke-width="2"/>`;
+    ejes += `<line x1="${padL}" y1="${padT + utilH}" x2="${ancho - padR}" y2="${padT + utilH}" stroke="#2d3436" stroke-width="2"/>`;
+
+    // Barras + valores + etiquetas X
+    let barras = '';
+    let valores = '';
+    let etiquetasX = '';
+    categorias.forEach((cat, i) => {
+      const cx = padL + (i + 0.5) * (utilW / categorias.length);
+      const x = cx - barW / 2;
+      const h = (cat.valor / maxValor) * utilH;
+      const y = padT + utilH - h;
+      const color = cat.color || paleta[i % paleta.length];
+      barras += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="5" ry="5" fill="${color}" stroke="#2d3436" stroke-width="1.5"/>`;
+      valores += `<text x="${cx}" y="${(y - 6).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="700" font-family="Fredoka, sans-serif" fill="#2d3436">${cat.valor}</text>`;
+      etiquetasX += `<text x="${cx}" y="${padT + utilH + 28}" text-anchor="middle" font-size="22" font-family="Fredoka, sans-serif">${cat.emoji || ''}</text>`;
+      etiquetasX += `<text x="${cx}" y="${padT + utilH + 50}" text-anchor="middle" font-size="11" font-weight="600" font-family="Fredoka, sans-serif" fill="#444">${cat.label || ''}</text>`;
+    });
+
+    const labelY = labelEjeY
+      ? `<text x="14" y="${padT + utilH / 2}" transform="rotate(-90, 14, ${padT + utilH / 2})" text-anchor="middle" font-size="11" font-weight="700" font-family="Fredoka, sans-serif" fill="#555">${labelEjeY}</text>`
+      : '';
+
+    return `<div class="grafica-wrap"><svg class="figura figura-grafica" viewBox="0 0 ${ancho} ${alto}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gráfica de barras">
+      ${cuadricula}
+      ${ejes}
+      ${barras}
+      ${valores}
+      ${labelY}
+      ${etiquetasY}
+      ${etiquetasX}
+    </svg></div>`;
+  },
+
   // Regletas Cuisenaire para visualizar una división.
   // Dibuja una regleta larga del tamaño "dividendo" y debajo, "cociente"
   // regletas del tamaño "divisor" + (si hay) una regleta de "resto" en otro color.
