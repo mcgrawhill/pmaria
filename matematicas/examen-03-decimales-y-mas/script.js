@@ -76,17 +76,16 @@ function _filaResultadoCifras(ej, maxEnt, maxDec, tieneComa) {
 }
 
 // Renderiza la fila de llevadas (huecos pequeños, opcionales).
-// La columna más a la izquierda no tiene llevada (no hay cifra anterior).
+// Una llevada se anota encima de una columna cuando la columna a su derecha
+// genera carry. Por tanto todas las columnas con cifra (incluida la más a la
+// izquierda, que puede recibir la llevada de la última suma) pueden tener
+// hueco. Solo la columna del signo no lo tiene.
 function _filaLlevadas(ej, maxEnt, maxDec, tieneComa) {
   let html = `<div class="op-cel llev"></div>`; // columna del signo
   for (let i = 0; i < maxEnt; i++) {
-    if (i === 0) {
-      html += `<div class="op-cel llev"></div>`;
-    } else {
-      html += `<div class="op-cel llev"><button type="button" class="display-num mini vacio"
-                data-id="${ej.id}-l${i}" data-valor="" data-max="1"
-                aria-label="Llevada columna ${i + 1}">–</button></div>`;
-    }
+    html += `<div class="op-cel llev"><button type="button" class="display-num mini vacio"
+              data-id="${ej.id}-l${i}" data-valor="" data-max="1"
+              aria-label="Llevada columna ${i + 1}">–</button></div>`;
   }
   if (tieneComa) html += `<div class="op-cel llev"></div>`;
   for (let i = 0; i < maxDec; i++) {

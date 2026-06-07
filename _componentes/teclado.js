@@ -23,6 +23,7 @@ const Teclado = {
   display: null,
   opts: {},
   primerPulse: false,
+  _cierreProgramado: false,
 
   abrir(displayEl, opts = {}) {
     this.display = displayEl;
@@ -46,30 +47,43 @@ const Teclado = {
     if (this.display) this.display.classList.remove('display-activo');
     this.display = null;
     this.opts = {};
+    this._cierreProgramado = false;
     this._quitarOverlay();
   },
 
   pulsar(tecla) {
     if (!this.display) return;
+    // Si ya está programado el cierre, ignorar pulsaciones extra para evitar
+    // que se acumulen setTimeouts y onCompleto se dispare más de una vez.
+    if (this._cierreProgramado && tecla !== 'borrar') return;
+
     let v = this.display.dataset.valor || '';
+    let cambioReal = false;
 
     if (tecla === 'borrar') {
       v = v.slice(0, -1);
       this.primerPulse = false;
+      cambioReal = true;
     } else if (tecla === ',') {
       if (!this.opts.decimal) return;
-      if (this.primerPulse) { v = ','; this.primerPulse = false; }
+      if (this.primerPulse) { v = ','; this.primerPulse = false; cambioReal = true; }
       else if (v.includes(',')) return;
-      else if (v.length < this.opts.maxDigitos) v += ',';
+      else if (v.length < this.opts.maxDigitos) { v += ','; cambioReal = true; }
       else return;
     } else {
       if (this.primerPulse) {
         v = tecla;
         this.primerPulse = false;
+        cambioReal = true;
       } else if (v.length < this.opts.maxDigitos) {
         v += tecla;
+        cambioReal = true;
+      } else {
+        return; // ya está lleno, ignorar la tecla
       }
     }
+
+    if (!cambioReal) return;
 
     this.display.dataset.valor = v;
     this.display.textContent = v || '–';
@@ -79,8 +93,10 @@ const Teclado = {
     // Auto-cierre cuando alcanza el número de dígitos esperado.
     // Tras coma esperamos más entrada, así que no auto-cerramos por la coma.
     if (tecla !== 'borrar' && tecla !== ',' && v.length >= this.opts.maxDigitos) {
+      this._cierreProgramado = true;
       const onCompleto = this.opts.onCompleto;
       setTimeout(() => {
+        this._cierreProgramado = false;
         this.cerrar();
         if (typeof onCompleto === 'function') onCompleto(v);
       }, 180);
