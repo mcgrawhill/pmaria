@@ -30,6 +30,30 @@
 .op-grid .op-cel.signo { font-size: 1.4rem; color: #555; }
 .op-grid .op-cel.coma { font-size: 1.5rem; font-weight: 700; padding-bottom: 0.4rem; }
 
+/* Cifras del minuendo en restas: clicables para tachar al pedir prestado.
+   Sin fondo de botón por defecto, se ven como las demás cifras. */
+.op-grid .op-cel .cifra-minuendo {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transition: background 0.12s;
+}
+.op-grid .op-cel .cifra-minuendo:hover { background: rgba(214, 48, 49, 0.10); }
+.op-grid .op-cel .cifra-minuendo.tachado {
+  text-decoration: line-through;
+  text-decoration-thickness: 3px;
+  text-decoration-color: #d63031;
+  color: #777;
+}
+
 /* Llevada: hueco mini encima de cada columna */
 .op-grid .op-cel.llev { height: 26px; }
 .op-grid .op-cel.llev .display-num.mini {

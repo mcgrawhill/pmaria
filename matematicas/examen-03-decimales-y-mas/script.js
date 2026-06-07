@@ -45,11 +45,19 @@ function alinearOp(a, b, respuesta) {
 }
 
 // Renderiza una fila estática de un operando (texto, sin inputs).
-function _filaEstatica(op, signoTxt, tieneComa) {
+// Si `clicable` es true, las cifras se pueden tachar pulsándolas (útil para
+// el minuendo de una resta: al pedir prestado se tacha y se escribe arriba
+// el valor reducido).
+function _filaEstatica(op, signoTxt, tieneComa, clicable = false) {
   let html = `<div class="op-cel signo">${signoTxt}</div>`;
-  op.ent.split('').forEach(c => html += `<div class="op-cel">${c === ' ' ? '' : c}</div>`);
+  const pintarCifra = (c) => {
+    if (c === ' ') return `<div class="op-cel"></div>`;
+    if (clicable) return `<div class="op-cel"><button type="button" class="cifra-minuendo">${c}</button></div>`;
+    return `<div class="op-cel">${c}</div>`;
+  };
+  op.ent.split('').forEach(c => html += pintarCifra(c));
   if (tieneComa) html += `<div class="op-cel coma">,</div>`;
-  op.dec.split('').forEach(c => html += `<div class="op-cel">${c === ' ' ? '' : c}</div>`);
+  op.dec.split('').forEach(c => html += pintarCifra(c));
   return html;
 }
 
@@ -102,9 +110,13 @@ function _filaLlevadas(ej, maxEnt, maxDec, tieneComa) {
 function opCifrasGrid(ej, signoOp, { conLlevadas = true } = {}) {
   const al = alinearOp(ej.a, ej.b, ej.respuesta);
   const totalCols = 1 + al.cols;
+  // En restas, las cifras del minuendo (primer operando) se pueden tachar
+  // como en el cuaderno: al pedir prestado, se tacha y arriba se escribe
+  // el nuevo valor en el hueco de "llevada".
+  const esResta = signoOp === '−' || signoOp === '-';
   let html = `<div class="op-grid" style="grid-template-columns: repeat(${totalCols}, var(--col-w));">`;
   if (conLlevadas) html += _filaLlevadas(ej, al.maxEnt, al.maxDec, al.tieneComa);
-  html += _filaEstatica(al.a, '', al.tieneComa);
+  html += _filaEstatica(al.a, '', al.tieneComa, esResta);
   html += _filaEstatica(al.b, signoOp, al.tieneComa);
   html += `<div class="op-linea" style="grid-column: 1 / span ${totalCols};"></div>`;
   html += _filaResultadoCifras(ej, al.maxEnt, al.maxDec, al.tieneComa);
@@ -416,6 +428,10 @@ function actualizarBarra() {
 // ---------- INTERACCIÓN ----------
 
 function conectarEventos() {
+  // En restas: cifras del minuendo se pueden tachar pulsándolas (toggle).
+  document.querySelectorAll('.cifra-minuendo').forEach(c => {
+    c.addEventListener('click', () => c.classList.toggle('tachado'));
+  });
   document.querySelectorAll('.display-num').forEach(disp => {
     disp.addEventListener('click', () => {
       if (disp.disabled) return;
