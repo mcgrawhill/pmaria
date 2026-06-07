@@ -118,9 +118,9 @@ const PWA = (function () {
     });
   }
 
-  // Pregunta al SW activo cuál es su versión. Devuelve null si no hay
-  // controller o si la respuesta tarda > 1500ms (timeout).
-  function obtenerVersion() {
+  // Pregunta al SW activo cuál es su versión via postMessage.
+  // Si no hay controller o no responde a tiempo, devuelve null.
+  function _versionPorMensaje() {
     if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
       return Promise.resolve(null);
     }
@@ -138,8 +138,30 @@ const PWA = (function () {
         resuelto = true;
         resolve(null);
       }
-      setTimeout(() => { if (!resuelto) { resuelto = true; resolve(null); } }, 1500);
+      setTimeout(() => { if (!resuelto) { resuelto = true; resolve(null); } }, 1200);
     });
+  }
+
+  // Fallback: lee el sw.js servido por la red y extrae CACHE_NAME por regex.
+  // Funciona aunque el SW activo sea una versión antigua que no responde al mensaje.
+  function _versionDelArchivo() {
+    if (!('serviceWorker' in navigator)) return Promise.resolve(null);
+    const baseScripts = document.querySelector('script[src$="pwa.js"]');
+    const swUrl = baseScripts ? new URL('../sw.js', baseScripts.src).pathname : 'sw.js';
+    return fetch(swUrl, { cache: 'no-store' })
+      .then(r => r.ok ? r.text() : null)
+      .then(t => {
+        if (!t) return null;
+        const m = t.match(/CACHE_NAME\s*=\s*['"]([^'"]+)['"]/);
+        return m ? m[1] : null;
+      })
+      .catch(() => null);
+  }
+
+  // Devuelve la versión actual: primero intenta vía mensaje al SW
+  // (rápido y fiel a la versión activa); si falla, lee el archivo sw.js servido.
+  function obtenerVersion() {
+    return _versionPorMensaje().then(v => v || _versionDelArchivo());
   }
 
   return { registrar, obtenerVersion };

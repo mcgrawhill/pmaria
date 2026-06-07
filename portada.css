@@ -86,8 +86,14 @@ body.portada {
 .version-footer {
   text-align: center;
   margin-top: 2rem;
-  font-size: 0.8rem;
-  color: rgba(45, 52, 54, 0.5);
+  font-size: 0.85rem;
+  color: rgba(45, 52, 54, 0.7);
   font-family: ui-monospace, 'SF Mono', Menlo, monospace;
   letter-spacing: 0.02em;
+}
+.version-footer #app-version {
+  background: rgba(255, 255, 255, 0.55);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
 }
