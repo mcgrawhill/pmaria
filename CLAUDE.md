@@ -94,6 +94,25 @@ Cada examen debe centrarse en **un solo tema o subtema** para no abrumar.
 5. Actualizar `matematicas/index.html` con enlace al nuevo examen.
 6. Actualizar `index.html` raíz si se añade una asignatura nueva.
 
+## Versionado del Service Worker
+
+**REGLA OBLIGATORIA**: cada vez que se cambie `CACHE_NAME` en `sw.js`
+(`alana-vN` → `alana-vN+1`), hay que actualizar también el literal de la
+versión en el footer de `index.html` (la raíz):
+
+```html
+<footer class="version-footer">
+  <span aria-label="Versión instalada">Alana · vNN</span>
+</footer>
+```
+
+Razón: el usuario verifica visualmente desde la portada que el deploy se ha
+actualizado. El literal fijo siempre se ve, incluso si el navegador tiene
+un Service Worker antiguo cacheado.
+
+Los dos números (CACHE_NAME y el span) deben ir SIEMPRE en sincronía dentro
+del mismo commit. No mezclar bumps con otros cambios sin actualizar ambos.
+
 ## Idioma
 
 **Todo en español de España.** Tanto el código como los textos visibles, comentarios y commits.
