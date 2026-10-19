@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#74b9ff" />
+  <title>Alana — Aprende jugando</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_componentes/examen.css" />
+  <link rel="stylesheet" href="_componentes/perfil.css" />
+  <link rel="stylesheet" href="portada.css" />
+</head>
+<body class="portada">
+  <main class="portada-main">
+    <div id="perfil-cont"></div>
+    <p class="subtitle">Elige una asignatura para aprender</p>
+    <div class="grid">
+      <a class="card" href="matematicas/index.html">
+        <span class="emoji">🔢</span>
+        <h2>Matemáticas</h2>
+        <span class="desc">Fracciones, áreas y más</span>
+      </a>
+      <div class="card disabled">
+        <span class="emoji">📖</span>
+        <h2>Lengua</h2>
+        <span class="desc">Próximamente</span>
+      </div>
+      <div class="card disabled">
+        <span class="emoji">🔬</span>
+        <h2>Ciencias</h2>
+        <span class="desc">Próximamente</span>
+      </div>
+    </div>
+    <a class="enlace-padres" href="dashboard.html">👪 Zona de padres</a>
+  </main>
+
+  <footer class="version-footer">
+    <span aria-label="Versión instalada">Alana · v21</span>
+  </footer>
+
+  <script src="_componentes/almacen.js"></script>
+  <script src="_componentes/perfil.js"></script>
+  <script src="_componentes/pwa.js"></script>
+  <script>
+    document.getElementById('perfil-cont').innerHTML = Perfil.render();
+    Perfil.conectarBotones();
+    if (window.PWA) PWA.registrar();
+  </script>
+</body>
+</html>

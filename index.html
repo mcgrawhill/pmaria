@@ -1,55 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#74b9ff" />
-  <title>Alana — Aprende jugando</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="icon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="_componentes/examen.css" />
-  <link rel="stylesheet" href="_componentes/perfil.css" />
-  <link rel="stylesheet" href="portada.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alana — se ha mudado</title>
+  <!-- El sitio vive ahora en la subcarpeta aprende_con_alana/.
+       Esta página solo redirige a quien entre por la dirección antigua. -->
+  <meta http-equiv="refresh" content="0; url=aprende_con_alana/">
+  <link rel="canonical" href="aprende_con_alana/">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      background: #fff8f0;
+      color: #2d3436;
+      font-family: 'Nunito', 'Quicksand', system-ui, sans-serif;
+      font-size: 1.25rem;
+      text-align: center;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+    a {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 16px;
+      background: #74b9ff;
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(116, 185, 255, 0.4);
+    }
+  </style>
 </head>
-<body class="portada">
-  <main class="portada-main">
-    <div id="perfil-cont"></div>
-    <p class="subtitle">Elige una asignatura para aprender</p>
-    <div class="grid">
-      <a class="card" href="matematicas/index.html">
-        <span class="emoji">🔢</span>
-        <h2>Matemáticas</h2>
-        <span class="desc">Fracciones, áreas y más</span>
-      </a>
-      <div class="card disabled">
-        <span class="emoji">📖</span>
-        <h2>Lengua</h2>
-        <span class="desc">Próximamente</span>
-      </div>
-      <div class="card disabled">
-        <span class="emoji">🔬</span>
-        <h2>Ciencias</h2>
-        <span class="desc">Próximamente</span>
-      </div>
-    </div>
-    <a class="enlace-padres" href="dashboard.html">👪 Zona de padres</a>
-  </main>
-
-  <footer class="version-footer">
-    <span aria-label="Versión instalada">Alana · v21</span>
-  </footer>
-
-  <script src="_componentes/almacen.js"></script>
-  <script src="_componentes/perfil.js"></script>
-  <script src="_componentes/pwa.js"></script>
+<body>
+  <p>🚀 Alana se ha mudado de sitio.</p>
+  <a href="aprende_con_alana/">Ir a Alana</a>
   <script>
-    document.getElementById('perfil-cont').innerHTML = Perfil.render();
-    Perfil.conectarBotones();
-    if (window.PWA) PWA.registrar();
+    // Redirección inmediata reemplazando la entrada del historial,
+    // para que el botón "atrás" no devuelva a esta página intermedia.
+    location.replace('aprende_con_alana/');
   </script>
 </body>
 </html>

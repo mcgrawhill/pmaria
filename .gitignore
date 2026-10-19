@@ -1,8 +1,4 @@
-# Capturas y zips de referencia (no deben publicarse)
-matematicas/capturas_libro/
-matematicas/capturas_libro_*/
-matematicas/examen_ejemplo/
-matematicas/*.zip
+# Los patrones propios del sitio viven en aprende_con_alana/.gitignore.
 
 # Configuración local de Claude
 .claude/

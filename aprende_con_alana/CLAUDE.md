@@ -11,24 +11,39 @@ Eres un experto creando páginas web educativas alojadas en **GitHub Pages**, di
 
 ## Estructura del repositorio
 
+El sitio **no vive en la raíz del repositorio**, sino en la subcarpeta
+`aprende_con_alana/`. La raíz solo conserva lo necesario para GitHub Pages y
+para atender la dirección antigua:
+
 ```
-alana/
-├── CLAUDE.md           # este archivo
-├── index.html          # portada con enlaces a todas las asignaturas
-├── matematicas/
-│   ├── index.html      # listado de exámenes de mates
-│   ├── examen-01-sumas/
-│   │   ├── index.html
-│   │   ├── style.css
-│   │   └── script.js
-│   ├── examen-02-restas/
-│   └── ...
-├── lengua/             # (futuro)
-├── ciencias/           # (futuro)
-└── assets/             # imágenes, sonidos compartidos
+alana/                          # raíz del repo — NO es el sitio
+├── .nojekyll                   # evita que Pages ignore _componentes/
+├── index.html                  # redirección a aprende_con_alana/
+├── sw.js                       # SW de retirada del scope antiguo
+└── aprende_con_alana/          # ← el sitio publicado vive aquí
+    ├── CLAUDE.md               # este archivo
+    ├── index.html              # portada (y literal de versión)
+    ├── sw.js                   # Service Worker real del sitio
+    ├── manifest.json
+    ├── _componentes/           # CSS y JS compartidos
+    ├── matematicas/
+    │   ├── index.html          # listado de exámenes de mates
+    │   ├── examen-01-sumas/
+    │   │   ├── index.html
+    │   │   ├── style.css
+    │   │   └── script.js
+    │   ├── examen-02-restas/
+    │   └── ...
+    ├── tests/
+    ├── lengua/                 # (futuro)
+    ├── ciencias/               # (futuro)
+    └── assets/                 # imágenes, sonidos compartidos
 ```
 
 Cada examen vive en **su propia carpeta autocontenida** con `index.html`, `style.css` y `script.js`. Así son fáciles de enlazar desde GitHub Pages y de mantener por separado.
+
+**Todas las rutas son relativas** (nunca empiezan por `/`): es lo que permite
+que el sitio funcione colgado de una subcarpeta. No introducir rutas absolutas.
 
 ## Directrices de diseño UI/UX
 
@@ -96,9 +111,14 @@ Cada examen debe centrarse en **un solo tema o subtema** para no abrumar.
 
 ## Versionado del Service Worker
 
-**REGLA OBLIGATORIA**: cada vez que se cambie `CACHE_NAME` en `sw.js`
-(`alana-vN` → `alana-vN+1`), hay que actualizar también el literal de la
-versión en el footer de `index.html` (la raíz):
+**REGLA OBLIGATORIA**: cada vez que se cambie `CACHE_NAME` en
+`aprende_con_alana/sw.js` (`alana-vN` → `alana-vN+1`), hay que actualizar
+también el literal de la versión en el footer de la portada,
+`aprende_con_alana/index.html`:
+
+⚠️ Ojo: hay dos `sw.js` y dos `index.html` en el repo. Los de la raíz son la
+redirección y el SW de retirada de la dirección antigua — **esos no se tocan**
+ni se versionan. La regla se refiere siempre a los de `aprende_con_alana/`.
 
 ```html
 <footer class="version-footer">

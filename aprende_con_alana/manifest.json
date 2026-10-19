@@ -2,6 +2,7 @@
   "name": "Alana — Aprende jugando",
   "short_name": "Alana",
   "description": "Ejercicios escolares de matemáticas para niños y niñas de 3.º-4.º de Primaria.",
+  "id": "./",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
