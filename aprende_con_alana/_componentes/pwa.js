@@ -10,6 +10,10 @@ const PWA = (function () {
   // luego controller cambia, es que se ha activado una versión nueva.
   let teniaController = false;
 
+  // Evita registrar dos veces (y duplicar listeners) si una página llama a
+  // registrar() además del auto-registro del final del archivo.
+  let yaRegistrado = false;
+
   function inyectarEstilos() {
     if (document.getElementById('pwa-estilos')) return;
     const css = `
@@ -90,6 +94,8 @@ const PWA = (function () {
   }
 
   function registrar() {
+    if (yaRegistrado) return;          // idempotente: da igual quién lo llame
+    yaRegistrado = true;
     if (!('serviceWorker' in navigator)) return;
 
     const baseScripts = document.querySelector('script[src$="pwa.js"]');
@@ -171,3 +177,13 @@ const PWA = (function () {
 // comprobación del tipo `if (window.PWA)` daría siempre falso. Se expone a
 // mano para que esas guardas funcionen.
 window.PWA = PWA;
+
+// Auto-registro: incluir este script en una página basta para que el Service
+// Worker quede registrado, sin tener que acordarse de llamar a PWA.registrar()
+// en cada una. Como registrar() es idempotente, las páginas que ya lo llaman
+// a mano siguen funcionando igual.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => PWA.registrar());
+} else {
+  PWA.registrar();
+}
