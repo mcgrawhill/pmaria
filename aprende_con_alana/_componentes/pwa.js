@@ -166,3 +166,8 @@ const PWA = (function () {
 
   return { registrar, obtenerVersion };
 })();
+
+// `const` en el ámbito global NO crea una propiedad de window, así que una
+// comprobación del tipo `if (window.PWA)` daría siempre falso. Se expone a
+// mano para que esas guardas funcionen.
+window.PWA = PWA;
