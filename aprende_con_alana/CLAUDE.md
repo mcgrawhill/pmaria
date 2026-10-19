@@ -77,6 +77,11 @@ que el sitio funcione colgado de una subcarpeta. No introducir rutas absolutas.
 - **Carga rápida**: imágenes optimizadas, sin dependencias externas pesadas. Si se usan fuentes de Google Fonts, preconectar.
 - **Código limpio y comentado en español** — este repo lo puede leer un profesor o un familiar.
 - **Sin tracking** (Google Analytics, etc.) — privacidad de menores.
+- Los módulos de `_componentes/` se declaran con `const` (`const PWA = …`) y
+  **deben exponerse a mano al final del archivo** (`window.PWA = PWA;`). Una
+  `const` global no crea una propiedad de `window`, así que una guarda del tipo
+  `if (window.PWA)` daría siempre falso y el módulo no se usaría nunca. Ya pasó
+  con el registro del Service Worker.
 
 ## Tipos de exámenes/ejercicios habituales (matemáticas, 9 años)
 
