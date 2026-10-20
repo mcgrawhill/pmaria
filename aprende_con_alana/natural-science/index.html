@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Natural Science — Alana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_componentes/examen.css" />
+  <link rel="stylesheet" href="../_componentes/perfil.css" />
+  <link rel="stylesheet" href="../_componentes/lista.css" />
+  <link rel="stylesheet" href="lista.css" />
+</head>
+<body class="lista">
+  <div class="back"><a href="../index.html">← Inicio</a></div>
+  <h1>🔬 Natural Science</h1>
+  <p class="subtitle" id="subtitle">Choose a unit to practise</p>
+  <div class="grid" id="examenes-grid"></div>
+
+  <script src="../_componentes/almacen.js"></script>
+  <script src="../_componentes/estrellas.js"></script>
+  <script src="examenes.js"></script>
+  <script src="../_componentes/pwa.js"></script>
+  <script>
+    (function () {
+      const p = Almacen.getPerfil();
+      if (p.nombre) document.getElementById('subtitle').textContent = `Hi ${p.nombre}, choose a unit`;
+      const grid = document.getElementById('examenes-grid');
+      grid.innerHTML = EXAMENES_NS.map(e => {
+        const mejor = Almacen.mejorIntento(e.id, { modo: 'fijo' });
+        const estrellas = mejor ? Estrellas.calcular(mejor.correctas, mejor.total) : 0;
+        const pct = mejor ? Math.round((mejor.correctas / mejor.total) * 100) : null;
+        const borradores = Almacen.listarBorradores(e.id);
+        const empezado = borradores.find(b => b.modo === 'fijo');
+        const chip = empezado
+          ? `<a class="chip-empezado" href="${e.url}">📌 You have one in progress — Continue →</a>` : '';
+        return `
+          <article class="card">
+            <div class="card-cuerpo">
+              <span class="emoji">${e.emoji}</span>
+              <div class="info">
+                <h2>${e.titulo}</h2>
+                <p>${e.descripcion}</p>
+                <div class="examen-info">
+                  ${Estrellas.render(estrellas)}
+                  ${mejor ? `<span>Best: ${pct}% (${mejor.correctas}/${mejor.total})</span>`
+                          : '<span>Not done yet</span>'}
+                  ${chip}
+                </div>
+              </div>
+            </div>
+            <div class="card-acciones">
+              <a class="card-boton primario" href="${e.url}">📋 Start</a>
+            </div>
+          </article>`;
+      }).join('');
+    })();
+  </script>
+</body>
+</html>

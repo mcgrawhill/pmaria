@@ -28,17 +28,37 @@ alana/                          # raíz del repo — NO es el sitio
     ├── _componentes/           # CSS y JS compartidos
     ├── matematicas/
     │   ├── index.html          # listado de exámenes de mates
+    │   ├── examenes.js         # alta de los exámenes de la asignatura
     │   ├── examen-01-sumas/
     │   │   ├── index.html
     │   │   ├── style.css
     │   │   └── script.js
     │   ├── examen-02-restas/
     │   └── ...
+    ├── natural-science/        # asignatura en inglés (bilingüe)
+    │   ├── index.html
+    │   ├── examenes.js
+    │   └── examen-01-human-body/
     ├── tests/
+    ├── wiki/                   # cómo se hacen las cosas (ver abajo)
+    ├── docs/bitacora.md        # histórico, lo más reciente arriba
     ├── lengua/                 # (futuro)
-    ├── ciencias/               # (futuro)
     └── assets/                 # imágenes, sonidos compartidos
 ```
+
+## Dónde mirar antes de construir algo
+
+La **[wiki](wiki/README.md)** tiene los procedimientos reproducibles:
+
+- [Crear un examen](wiki/procedimientos/crear-examen.md)
+- [Crear una asignatura](wiki/procedimientos/crear-asignatura.md)
+- [Tipos de ejercicio](wiki/procedimientos/tipos-de-ejercicio.md) — las
+  dinámicas disponibles y cuándo usar cada una
+- [Componentes compartidos](wiki/procedimientos/componentes.md) — API de
+  `_componentes/`
+- [Publicar y versionar](wiki/procedimientos/publicar.md)
+
+Las specs de lo ya construido están en [`wiki/feats/`](wiki/feats/README.md).
 
 Cada examen vive en **su propia carpeta autocontenida** con `index.html`, `style.css` y `script.js`. Así son fáciles de enlazar desde GitHub Pages y de mantener por separado.
 

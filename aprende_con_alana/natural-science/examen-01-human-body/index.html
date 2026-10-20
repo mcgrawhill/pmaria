@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit 1: The human body | Natural Science</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../_componentes/examen.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="cabecera">
+    <a class="volver" href="../index.html" aria-label="Back to Natural Science">←</a>
+    <div class="titulo-bloque">
+      <h1 id="seccion-titulo">🫀 The human body</h1>
+      <p id="seccion-subtitulo" class="subtitulo">Loading...</p>
+    </div>
+    <div class="puntuacion" aria-label="Current score">
+      <span class="estrella">⭐</span>
+      <span id="puntos">0</span>
+    </div>
+    <div class="cron-chip" id="cron-chip" hidden aria-label="Time">
+      <span>⏱️</span>
+      <span id="cron-tiempo">0s</span>
+    </div>
+  </header>
+
+  <div class="barra-progreso" aria-hidden="true">
+    <div id="barra-fill" class="barra-fill"></div>
+  </div>
+
+  <nav class="pasos" id="pasos" aria-label="Exam parts"></nav>
+
+  <main id="examen" class="examen"></main>
+
+  <footer class="pie">
+    <button id="btn-comprobar" class="boton boton-comprobar" type="button">
+      Check my answers ✓
+    </button>
+    <button id="btn-siguiente" class="boton boton-siguiente" type="button" hidden>
+      Next part →
+    </button>
+    <button id="btn-final" class="boton boton-final" type="button" hidden>
+      See my result 🎉
+    </button>
+  </footer>
+
+  <div id="modal-final" class="modal" hidden>
+    <div class="modal-contenido">
+      <div class="modal-emoji" id="modal-emoji">🎉</div>
+      <h2 id="modal-titulo">Well done!</h2>
+      <p id="modal-mensaje" class="modal-mensaje"></p>
+      <p id="modal-tiempo" class="modal-tiempo" hidden></p>
+      <div class="modal-stats">
+        <div class="stat"><span class="stat-num" id="stat-correctas">0</span><span class="stat-label">Correct</span></div>
+        <div class="stat"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Total</span></div>
+        <div class="stat"><span class="stat-num" id="stat-porcentaje">0%</span><span class="stat-label">Mark</span></div>
+      </div>
+      <button class="boton boton-reiniciar" type="button" onclick="location.reload()">Try again 🔄</button>
+      <a class="boton boton-volver" href="../index.html">Back to Natural Science</a>
+    </div>
+  </div>
+
+  <canvas id="confeti" aria-hidden="true"></canvas>
+
+  <script src="../../_componentes/confeti.js"></script>
+  <script src="../../_componentes/almacen.js"></script>
+  <script src="../../_componentes/modal.js"></script>
+  <script src="../../_componentes/cronometro.js"></script>
+  <script src="../../_componentes/anatomia.js"></script>
+  <script src="../../_componentes/ranuras.js"></script>
+  <script src="../../_componentes/pwa.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

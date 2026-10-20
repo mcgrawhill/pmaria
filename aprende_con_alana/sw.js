@@ -2,7 +2,7 @@
 // Estrategia: stale-while-revalidate (responde cacheado y refresca en segundo plano).
 // Subir CACHE_NAME al cambiar este archivo para invalidar el cache anterior.
 
-const CACHE_NAME = 'alana-v23';
+const CACHE_NAME = 'alana-v24';
 const ARCHIVOS_BASE = [
   './',
   'index.html',
@@ -22,8 +22,10 @@ const ARCHIVOS_BASE = [
   '_componentes/modal.js',
   '_componentes/cronometro.js',
   '_componentes/generador.js',
+  '_componentes/lista.css',
+  '_componentes/anatomia.js',
+  '_componentes/ranuras.js',
   'matematicas/index.html',
-  'matematicas/lista.css',
   'matematicas/examenes.js',
   'matematicas/examen-01-repaso-general/index.html',
   'matematicas/examen-01-repaso-general/script.js',
@@ -37,6 +39,12 @@ const ARCHIVOS_BASE = [
   'matematicas/examen-04-graficas-encuestas/index.html',
   'matematicas/examen-04-graficas-encuestas/script.js',
   'matematicas/examen-04-graficas-encuestas/style.css',
+  'natural-science/index.html',
+  'natural-science/lista.css',
+  'natural-science/examenes.js',
+  'natural-science/examen-01-human-body/index.html',
+  'natural-science/examen-01-human-body/script.js',
+  'natural-science/examen-01-human-body/style.css',
   'dashboard.html',
 ];
 

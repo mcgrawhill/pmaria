@@ -2,6 +2,13 @@
 // Lee de Almacen, no toca localStorage directamente.
 
 (function () {
+  // Todos los exámenes de todas las asignaturas. Cada asignatura aporta su
+  // propia lista; si una no está cargada, simplemente no suma.
+  const TODOS_EXAMENES = [
+    ...(typeof EXAMENES !== 'undefined' ? EXAMENES : []),
+    ...(typeof EXAMENES_NS !== 'undefined' ? EXAMENES_NS : []),
+  ];
+
   const perfil = Almacen.getPerfil();
   const racha = Almacen.getRacha();
   const sub = document.getElementById('dash-subtitle');
@@ -9,7 +16,7 @@
 
   const main = document.getElementById('dash-main');
 
-  const todosIntentos = EXAMENES.flatMap(e => Almacen.getIntentos(e.id));
+  const todosIntentos = TODOS_EXAMENES.flatMap(e => Almacen.getIntentos(e.id));
   const totalIntentos = todosIntentos.length;
   const totalCorrectas = todosIntentos.reduce((s, i) => s + i.correctas, 0);
   const totalPreguntas = todosIntentos.reduce((s, i) => s + i.total, 0);
@@ -93,7 +100,7 @@
   }
 
   function renderExamenes() {
-    return EXAMENES.map(e => {
+    return TODOS_EXAMENES.map(e => {
       const intentos = Almacen.getIntentos(e.id);
       const mejorFijo = Almacen.mejorIntento(e.id, { modo: 'fijo' });
       const estrellas = mejorFijo ? Estrellas.calcular(mejorFijo.correctas, mejorFijo.total) : 0;

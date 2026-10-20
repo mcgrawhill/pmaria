@@ -1,0 +1,300 @@
+/* Unit 1 — The human body. Estilos propios del examen:
+   diagramas, ranuras con banco de palabras, filas de T/F y emparejado. */
+
+body {
+  background: linear-gradient(135deg, #d9f3ea 0%, #cfe9ff 100%);
+  background-attachment: fixed;
+}
+
+/* ---------- DIAGRAMAS ---------- */
+
+.diagrama-wrap {
+  background: #fff;
+  border-radius: var(--radio);
+  padding: 0.8rem;
+  margin: 0.8rem 0 1.2rem;
+  box-shadow: var(--sombra);
+}
+
+.diagrama {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  margin: 0 auto;
+}
+
+/* ---------- RANURAS (hueco a rellenar) ---------- */
+
+.ranura {
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--azul-osc);
+  background: #fff;
+  border: 2.5px dashed var(--azul);
+  border-radius: 12px;
+  padding: 0.5rem 0.9rem;
+  min-height: 48px;
+  min-width: 120px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+
+.ranura:active { transform: scale(0.97); }
+.ranura.vacia { color: var(--gris); font-weight: 500; }
+.ranura.inline { min-width: 110px; margin: 0 0.15rem; vertical-align: middle; }
+.ranura.corta { min-width: 64px; flex: 0 0 auto; }
+
+.ranura.ok {
+  border-style: solid;
+  border-color: var(--verde-osc);
+  background: #e8fdf5;
+  color: var(--verde-osc);
+}
+
+.ranura.ko {
+  border-style: solid;
+  border-color: var(--rojo-osc);
+  background: #ffeceb;
+  color: var(--rojo-osc);
+  text-decoration: line-through;
+}
+
+.ranura:disabled { cursor: default; }
+
+/* ---------- SLOTS NUMERADOS (bajo el diagrama) ---------- */
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.7rem;
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.slot-num {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--azul-osc);
+  color: #fff;
+  font-weight: 700;
+}
+
+.slot .ranura { flex: 1 1 auto; }
+
+/* ---------- TEXTO CON HUECOS ---------- */
+
+.texto-hueco {
+  font-size: 1.1rem;
+  line-height: 2.4;
+  margin: 0.6rem 0;
+}
+
+/* ---------- FILAS (ordenar, emparejar, clasificar, T/F) ---------- */
+
+.filas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.fila-orden,
+.fila-match,
+.fila-tf {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: #fff;
+  border-radius: 14px;
+  padding: 0.7rem 0.9rem;
+  box-shadow: var(--sombra);
+}
+
+.fila-match,
+.fila-tf { justify-content: space-between; }
+
+.fila-texto {
+  flex: 1 1 auto;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.tf-botones {
+  display: flex;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.tf-btn {
+  width: 50px;
+  height: 48px;
+  border-radius: 12px;
+  border: 2.5px solid var(--azul);
+  background: #fff;
+  color: var(--azul-osc);
+  font-family: inherit;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tf-btn.elegida { background: var(--azul); color: #fff; }
+.tf-btn.ok { border-color: var(--verde-osc); background: var(--verde); color: #065f46; }
+.tf-btn.ko { border-color: var(--rojo-osc); background: var(--rojo); color: #fff; }
+.tf-btn:disabled { cursor: default; }
+
+/* ---------- OPCIONES DE TEXTO ---------- */
+
+.bloque-mc { margin-bottom: 1rem; }
+
+.mc-pregunta {
+  font-size: 1rem;
+  font-style: italic;
+  margin: 0 0 0.5rem;
+  color: #555;
+}
+
+.opciones-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.opcion-texto {
+  font-family: inherit;
+  font-size: 1rem;
+  text-align: left;
+  line-height: 1.45;
+  background: #fff;
+  border: 2.5px solid #dfe6e9;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  min-height: 48px;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.opcion-texto:active { transform: scale(0.99); }
+.opcion-texto.elegida { border-color: var(--azul-osc); background: #eaf4ff; }
+.opcion-texto.ok,
+.opcion-texto.solucion { border-color: var(--verde-osc); background: #e8fdf5; }
+.opcion-texto.ko { border-color: var(--rojo-osc); background: #ffeceb; }
+.opcion-texto:disabled { cursor: default; }
+
+.opciones-texto.multi .opcion-texto.elegida::before { content: '✔️ '; }
+
+/* ---------- LEYENDAS ---------- */
+
+.leyenda {
+  list-style: none;
+  padding: 0.8rem 1rem;
+  margin: 0 0 1rem;
+  background: #fff8e7;
+  border-left: 5px solid var(--naranja);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.leyenda-linea {
+  padding: 0.7rem 1rem;
+  margin: 0 0 1rem;
+  background: #fff8e7;
+  border-left: 5px solid var(--naranja);
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+/* ---------- PANEL DE BANCO DE PALABRAS ---------- */
+
+body.con-panel { overflow: hidden; }
+
+.banco-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.banco-fondo {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.banco-hoja {
+  position: relative;
+  width: min(560px, 100%);
+  background: var(--fondo);
+  border-radius: 22px 22px 0 0;
+  padding: 1.2rem 1.1rem calc(1.2rem + env(safe-area-inset-bottom, 0px));
+  box-shadow: var(--sombra-fuerte);
+  animation: subir 0.18s ease-out;
+}
+
+@keyframes subir {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.banco-titulo {
+  margin: 0 0 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  color: #636e72;
+}
+
+.banco-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.banco-chip {
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  background: #fff;
+  color: var(--texto);
+  border: 2.5px solid var(--azul);
+  border-radius: 14px;
+  padding: 0.7rem 1.1rem;
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.banco-chip:active { transform: scale(0.97); }
+.banco-chip.usada { opacity: 0.45; border-style: dashed; }
+
+.banco-acciones {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.banco-acciones .boton { flex: 1 1 0; }
+.banco-borrar { background: #ffeceb; color: var(--rojo-osc); }
+.banco-cerrar { background: var(--gris-claro); color: var(--texto); }
+
+/* ---------- MÓVIL ---------- */
+
+@media (max-width: 480px) {
+  .slots { grid-template-columns: 1fr; }
+  .texto-hueco { font-size: 1rem; line-height: 2.5; }
+  .fila-match,
+  .fila-tf { flex-wrap: wrap; }
+}

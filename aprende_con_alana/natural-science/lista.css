@@ -1,0 +1,7 @@
+/* Natural Science: mismo listado que el resto, con su propio color de fondo
+   (verde agua) para que se distinga de Matemáticas de un vistazo. */
+
+body.lista {
+  background: linear-gradient(135deg, #d9f3ea 0%, #a8e6cf 100%);
+  background-attachment: fixed;
+}
