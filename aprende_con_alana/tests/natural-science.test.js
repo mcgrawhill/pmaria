@@ -115,14 +115,28 @@ test('las opciones múltiples apuntan a una respuesta existente', () => {
   }));
 });
 
-test('los diagramas que se piden existen en Anatomia', () => {
-  const anatomia = fs.readFileSync(
-    path.join(__dirname, '..', '_componentes', 'anatomia.js'), 'utf8');
+test('los diagramas que se piden existen, con un punto por ítem', () => {
+  const Anatomia = require('../_componentes/anatomia.js');
+  const dir = path.join(__dirname, '..', 'natural-science', 'examen-01-human-body', 'img');
   SECCIONES.forEach(sec => sec.ejercicios
     .filter(e => e.presentacion === 'diagrama')
     .forEach(ej => {
-      assert.ok(new RegExp(`function ${ej.diagrama}\\s*\\(`).test(anatomia),
-        `${ej.id}: Anatomia no define "${ej.diagrama}"`);
+      const d = Anatomia.DIAGRAMAS[ej.diagrama];
+      assert.ok(d, `${ej.id}: Anatomia no define "${ej.diagrama}"`);
+      assert.strictEqual(d.puntos.length, ej.items.length,
+        `${ej.id}: el diagrama tiene ${d.puntos.length} puntos y el ejercicio ${ej.items.length} huecos`);
+      // La numeración del dibujo tiene que casar con la etiqueta de cada hueco.
+      ej.items.forEach((it, i) => {
+        assert.strictEqual(String(d.puntos[i].n), String(it.etiqueta),
+          `${ej.id}: el punto ${i + 1} del diagrama no coincide con la etiqueta "${it.etiqueta}"`);
+      });
+      // Y los puntos deben caer dentro de la imagen.
+      d.puntos.forEach(p => {
+        assert.ok(p.x >= 0 && p.x <= 100 && p.y >= 0 && p.y <= 100,
+          `${ej.id}: el punto ${p.n} se sale de la imagen (${p.x}%, ${p.y}%)`);
+      });
+      assert.ok(fs.existsSync(path.join(dir, d.archivo)),
+        `${ej.id}: falta la imagen ${d.archivo}`);
     }));
 });
 

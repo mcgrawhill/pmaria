@@ -40,15 +40,19 @@ con banco de palabras.
 
 ## Diagramas
 
-Cinco SVG dibujados a mano en `_componentes/anatomia.js`: respiratorio,
-digestivo, excretor, reproductor masculino y femenino. Cada uno lleva puntos
-azules numerados que se corresponden con los huecos del ejercicio.
+Son **las láminas mudas del propio examen**, extraídas de
+`unit_1_human_body.pdf`, recortadas y pasadas a WebP (160 KB las cinco,
+frente a 1,8 MB en PNG). Sobre cada caja vacía del dibujo se coloca un
+número, y el ejercicio pregunta qué va en cada número.
 
-Al dibujarlos hay un detalle que importa: **dos etiquetas distintas tienen
-que señalar a sitios visualmente distintos**. La primera versión del
-respiratorio tenía una cabeza sin perfil y los puntos de `nose` y `mouth`
-caían casi encima, así que el ejercicio no se podía resolver mirando el
-dibujo. Se rehízo el perfil con nariz y labios marcados.
+Hubo un primer intento con dibujos propios en SVG, por la duda del
+copyright. Se descartó: no se parecían lo suficiente a lo que verá en la
+prueba, que es justo de lo que se trata. Las fotos del libro con texto
+(`cuerpo humano/*.jpg`) siguen sin publicarse.
+
+La correspondencia de cada caja con su órgano está verificada contra la hoja
+de respuestas del PDF (por ejemplo, en el respiratorio: derecha de arriba
+abajo nose, mouth, lungs, alveoli; izquierda trachea, bronchi, diaphragm).
 
 ## Verificación
 

@@ -2,7 +2,7 @@
 // Estrategia: stale-while-revalidate (responde cacheado y refresca en segundo plano).
 // Subir CACHE_NAME al cambiar este archivo para invalidar el cache anterior.
 
-const CACHE_NAME = 'alana-v24';
+const CACHE_NAME = 'alana-v25';
 const ARCHIVOS_BASE = [
   './',
   'index.html',
@@ -45,7 +45,13 @@ const ARCHIVOS_BASE = [
   'natural-science/examen-01-human-body/index.html',
   'natural-science/examen-01-human-body/script.js',
   'natural-science/examen-01-human-body/style.css',
+  'natural-science/examen-01-human-body/img/respiratorio.webp',
+  'natural-science/examen-01-human-body/img/digestivo.webp',
+  'natural-science/examen-01-human-body/img/excretor.webp',
+  'natural-science/examen-01-human-body/img/masculino.webp',
+  'natural-science/examen-01-human-body/img/femenino.webp',
   'dashboard.html',
+  'reset.html',
 ];
 
 self.addEventListener('install', (event) => {
@@ -67,7 +73,12 @@ self.addEventListener('message', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((nombres) =>
-      Promise.all(nombres.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
+      // Solo las cachés de Alana: en github.io todos los repos comparten
+      // origen, así que borrar por "todo lo que no sea la mía" se llevaría
+      // por delante las de otro sitio publicado en la misma cuenta.
+      Promise.all(nombres
+        .filter((n) => n.startsWith('alana-') && n !== CACHE_NAME)
+        .map((n) => caches.delete(n)))
     )
   );
   self.clients.claim();

@@ -109,5 +109,6 @@ const Ranuras = (function () {
   return { init, render, conectar, cerrar };
 })();
 
-window.Ranuras = Ranuras;
+// `const` global no crea propiedad en window: hay que exponerlo a mano.
+if (typeof window !== 'undefined') window.Ranuras = Ranuras;
 if (typeof module !== 'undefined' && module.exports) module.exports = Ranuras;

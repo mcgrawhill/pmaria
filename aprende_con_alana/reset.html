@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reiniciar Alana</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.2rem;
+      background: #fff8f0; color: #2d3436;
+      font-family: system-ui, sans-serif; font-size: 1.1rem;
+      text-align: center; padding: 2rem; box-sizing: border-box;
+    }
+    h1 { font-size: 1.5rem; margin: 0; }
+    p { max-width: 30rem; line-height: 1.5; margin: 0; }
+    button {
+      font: inherit; font-weight: 700;
+      padding: 1rem 2rem; border: none; border-radius: 16px;
+      background: #0984e3; color: #fff; cursor: pointer;
+      min-height: 48px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.4);
+    }
+    a { color: #0984e3; }
+    #log {
+      font-family: ui-monospace, monospace; font-size: 0.9rem;
+      color: #555; white-space: pre-line; min-height: 4rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧹 Reiniciar Alana</h1>
+  <p>Si la página se queda en blanco o muestra una versión antigua, esto borra
+    la copia guardada en el navegador y la vuelve a descargar.</p>
+  <p><strong>No se pierde el progreso</strong>: los resultados y el perfil se
+    guardan aparte y no se tocan.</p>
+  <button id="btn" type="button">Borrar la copia guardada</button>
+  <div id="log"></div>
+  <p><a href="index.html">← Volver a Alana</a></p>
+
+  <script>
+    const log = (t) => { document.getElementById('log').textContent += t + '\n'; };
+
+    document.getElementById('btn').addEventListener('click', async () => {
+      const btn = document.getElementById('btn');
+      btn.disabled = true;
+      btn.textContent = 'Limpiando…';
+      try {
+        // 1. Quitar los service workers de este sitio.
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const r of regs) await r.unregister();
+          log(`Service workers retirados: ${regs.length}`);
+        }
+        // 2. Borrar solo las cachés de Alana (el origen puede ser compartido
+        //    con otros proyectos publicados en la misma cuenta de GitHub).
+        if (window.caches) {
+          const nombres = (await caches.keys()).filter(n => n.startsWith('alana-'));
+          for (const n of nombres) await caches.delete(n);
+          log(`Cachés borradas: ${nombres.length ? nombres.join(', ') : 'ninguna'}`);
+        }
+        log('Listo. Recargando…');
+        setTimeout(() => { location.replace('index.html?limpio=' + Date.now()); }, 1200);
+      } catch (e) {
+        log('No se ha podido limpiar: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = 'Intentar de nuevo';
+      }
+    });
+  </script>
+</body>
+</html>

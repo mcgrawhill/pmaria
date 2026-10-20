@@ -62,19 +62,32 @@ Clases útiles: `inline` (dentro de un párrafo), `corta` (para números o letra
 
 ### `anatomia.js` — `Anatomia`
 
-Diagramas SVG del cuerpo humano, dibujados a mano en el propio archivo:
-`respiratorio()`, `digestivo()`, `excretor()`, `reproductorMasculino()`,
-`reproductorFemenino()`.
+Las láminas mudas del examen de clase (las del PDF de la unidad, recortadas
+y pasadas a WebP), con un número superpuesto dentro de cada caja vacía.
 
-Cada uno lleva puntos azules numerados; el número se corresponde con el
-`etiqueta` del ítem en el ejercicio. Para añadir un diagrama nuevo, copia
-una función, dibuja con `<path>` y coloca los puntos con el helper
-`punto(n, x, y, anclaX, anclaY)`.
+`Anatomia.render('respiratorio')` devuelve el `<figure>` con la imagen y sus
+puntos. Diagramas disponibles: `respiratorio`, `digestivo`, `excretor`,
+`reproductorMasculino`, `reproductorFemenino`.
 
-> **No se usan imágenes del libro de texto.** Tienen copyright y este repo es
-> público. El material escaneado del libro está en el `.gitignore`
-> (`matematicas/capturas_libro/`, `*.zip`) y sirve solo de referencia para
-> dibujar.
+Se usan las láminas originales **a propósito**: lo que practica tiene que
+parecerse a lo que verá en la prueba. Un primer intento con dibujos propios
+en SVG se descartó por eso.
+
+Para añadir un diagrama nuevo:
+
+1. Extrae la lámina del PDF:
+   `pdftoppm -png -r 200 -f <pág> -l <pág> -x <X> -y <Y> -W <W> -H <H> archivo.pdf salida`
+2. Recórtala y pásala a WebP (un PNG de línea pesa 10× más).
+   Guárdala en la carpeta `img/` del examen.
+3. Añade su entrada en `DIAGRAMAS` con el ancho y alto reales y el centro de
+   cada caja **en % del ancho y alto** (así cuadran a cualquier tamaño).
+4. Comprueba en el navegador que cada número cae dentro de su caja. Los
+   tests verifican que hay un punto por hueco y que ninguno se sale, pero
+   **no** pueden saber si el número está en la caja correcta: eso se mira.
+
+> Ojo con las **fotos del libro** (`cuerpo humano/*.jpg`, las capturas de
+> matemáticas): esas sí llevan el texto y la maquetación de la editorial.
+> Están en el `.gitignore` y se usan solo como referencia.
 
 ### `figuras.js` — `Figuras`
 

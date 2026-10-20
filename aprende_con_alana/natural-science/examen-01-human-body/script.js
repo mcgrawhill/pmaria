@@ -359,7 +359,7 @@ function renderEjercicio(ej) {
 
   if (ej.tipo === 'ranuras') {
     if (ej.presentacion === 'diagrama') {
-      cuerpo += `<div class="diagrama-wrap">${Anatomia[ej.diagrama]()}</div>`;
+      cuerpo += `<div class="diagrama-wrap">${Anatomia.render(ej.diagrama)}</div>`;
       cuerpo += `<div class="slots">` + ej.items.map(it =>
         `<div class="slot"><span class="slot-num">${it.etiqueta}</span>
            ${Ranuras.render(it.id, it.grupo, 'tap to choose')}</div>`).join('') + `</div>`;
